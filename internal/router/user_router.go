@@ -20,4 +20,5 @@ func NewUserRouter(v *gin.RouterGroup, handler handler.UserHandler) UserRouter {
 
 func (u *userRouterImpl) Mount() {
 	u.v.GET("/:id", u.handler.GetUserById)
+	u.v.POST("/register", u.handler.UserRegister)
 }

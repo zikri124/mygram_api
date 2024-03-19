@@ -5,11 +5,15 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator"
+	"github.com/zikri124/mygram-api/internal/model"
 	"github.com/zikri124/mygram-api/internal/service"
+	"github.com/zikri124/mygram-api/pkg/response"
 )
 
 type UserHandler interface {
 	GetUserById(ctx *gin.Context)
+	UserRegister(ctx *gin.Context)
 }
 
 type userHandlerImpl struct {
@@ -52,4 +56,41 @@ func (u *userHandlerImpl) GetUserById(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, user)
+}
+
+// Register User godoc
+//
+// @Summary		Register a new user
+// @Description	Register a new user to
+// @Tags		users
+// @Accept		json
+// @Produce		json
+// @Param		user	body	model.UserSignUp	true	"New User"
+// @Success		200		{object}	model.UserView
+// @Failure		400		{object}	response.ErrorResponse
+// @Failure		500		{object}	response.ErrorResponse
+// @Router		/v1/users/register [post]
+func (u *userHandlerImpl) UserRegister(ctx *gin.Context) {
+	userRegData := model.UserSignUp{}
+
+	err := ctx.ShouldBindJSON(&userRegData)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	validate := validator.New()
+	err = validate.Struct(userRegData)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	user, err := u.svc.UserRegister(ctx, userRegData)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusCreated, user)
 }

@@ -19,19 +19,17 @@ type User struct {
 }
 
 type UserSignUp struct {
-	Username string    `json:"username" validate:"required"`
-	Email    string    `json:"email" validate:"required,email"`
-	Password string    `json:"password" validate:"required"`
-	DOB      time.Time `json:"dob" validate:"required"`
+	Username string `json:"username" validate:"required"`
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required"`
+	DOB      string `json:"dob" validate:"required"`
 }
 
 type UserView struct {
-	ID        uint32    `json:"id"`
-	Username  string    `json:"username"`
-	Email     string    `json:"email"`
-	Age       uint16    `json:"age"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID       uint32 `json:"id"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Age      uint16 `json:"age"`
 }
 
 func (u *User) BeforeCreate(db *gorm.DB) (err error) {
