@@ -24,6 +24,52 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/v1/users/register": {
+            "post": {
+                "description": "Register a new user to",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Register a new user",
+                "parameters": [
+                    {
+                        "description": "New User",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.UserSignUp"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.UserView"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/users/{id}": {
             "get": {
                 "description": "Show data of user by id given in params",
@@ -70,14 +116,34 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "model.UserSignUp": {
+            "type": "object",
+            "required": [
+                "dob",
+                "email",
+                "password",
+                "username"
+            ],
+            "properties": {
+                "dob": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
         "model.UserView": {
             "type": "object",
             "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "dob": {
-                    "type": "string"
+                "age": {
+                    "type": "integer"
                 },
                 "email": {
                     "type": "string"
@@ -85,10 +151,21 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "updated_at": {
-                    "type": "string"
-                },
                 "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "errors": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "message": {
                     "type": "string"
                 }
             }

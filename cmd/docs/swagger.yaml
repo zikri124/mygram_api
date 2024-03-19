@@ -1,18 +1,39 @@
 basePath: /
 definitions:
-  model.UserView:
+  model.UserSignUp:
     properties:
-      created_at:
-        type: string
       dob:
         type: string
       email:
         type: string
-      id:
-        type: integer
-      updated_at:
+      password:
         type: string
       username:
+        type: string
+    required:
+    - dob
+    - email
+    - password
+    - username
+    type: object
+  model.UserView:
+    properties:
+      age:
+        type: integer
+      email:
+        type: string
+      id:
+        type: integer
+      username:
+        type: string
+    type: object
+  response.ErrorResponse:
+    properties:
+      errors:
+        items:
+          type: string
+        type: array
+      message:
         type: string
     type: object
 host: localhost:3000
@@ -57,6 +78,36 @@ paths:
           description: Internal Server Error
           schema: {}
       summary: Show user data by user id
+      tags:
+      - users
+  /v1/users/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user to
+      parameters:
+      - description: New User
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/model.UserSignUp'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.UserView'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Register a new user
       tags:
       - users
 schemes:
