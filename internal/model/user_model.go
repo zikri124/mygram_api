@@ -29,7 +29,7 @@ type UserView struct {
 	ID        uint32    `json:"id"`
 	Username  string    `json:"username"`
 	Email     string    `json:"email"`
-	DOB       time.Time `json:"dob"`
+	Age       uint16    `json:"age"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }

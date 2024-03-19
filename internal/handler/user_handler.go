@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"log"
 	"net/http"
 	"strconv"
 
@@ -51,8 +50,6 @@ func (u *userHandlerImpl) GetUserById(ctx *gin.Context) {
 		ctx.JSON(http.StatusNotFound, nil)
 		return
 	}
-
-	log.Println("hee")
 
 	ctx.JSON(http.StatusOK, user)
 }

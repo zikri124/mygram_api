@@ -5,6 +5,7 @@ import (
 
 	"github.com/zikri124/mygram-api/internal/model"
 	"github.com/zikri124/mygram-api/internal/repository"
+	"github.com/zikri124/mygram-api/pkg/helper"
 )
 
 type UserService interface {
@@ -25,7 +26,9 @@ func (u *userServiceImpl) GetUserById(ctx context.Context, userId uint32) (*mode
 		return nil, err
 	}
 
-	userView := model.UserView{ID: user.ID, Username: user.Username, Email: user.Email, DOB: user.DOB, CreatedAt: user.CreatedAt, UpdatedAt: user.UpdatedAt}
+	age := helper.CountAge(user.DOB)
+
+	userView := model.UserView{ID: user.ID, Username: user.Username, Email: user.Email, Age: age, CreatedAt: user.CreatedAt, UpdatedAt: user.UpdatedAt}
 
 	return &userView, nil
 }
