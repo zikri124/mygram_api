@@ -70,13 +70,16 @@ paths:
             $ref: '#/definitions/model.UserView'
         "400":
           description: Bad Request
-          schema: {}
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
         "404":
           description: Not Found
-          schema: {}
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
         "500":
           description: Internal Server Error
-          schema: {}
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       summary: Show user data by user id
       tags:
       - users

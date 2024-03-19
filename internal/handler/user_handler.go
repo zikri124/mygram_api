@@ -33,25 +33,25 @@ func NewUserHandler(svc service.UserService) UserHandler {
 // @Produce		json
 // @Param		id		path		int		true	"User ID"
 // @Success		200		{object}	model.UserView
-// @Failure		400		{object}	error
-// @Failure		404		{object}	error
-// @Failure		500		{object}	error
+// @Failure		400		{object}	response.ErrorResponse
+// @Failure		404		{object}	response.ErrorResponse
+// @Failure		500		{object}	response.ErrorResponse
 // @Router			/v1/users/{id} [get]
 func (u *userHandlerImpl) GetUserById(ctx *gin.Context) {
 	userId, err := strconv.Atoi(ctx.Param("id"))
 	if userId == 0 || err != nil {
-		ctx.JSON(http.StatusBadRequest, err)
+		ctx.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
 		return
 	}
 
 	user, err := u.svc.GetUserById(ctx, uint32(userId))
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, err)
+		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
 		return
 	}
 
 	if user.ID == 0 {
-		ctx.JSON(http.StatusNotFound, nil)
+		ctx.JSON(http.StatusNotFound, response.ErrorResponse{Message: "User not found"})
 		return
 	}
 
