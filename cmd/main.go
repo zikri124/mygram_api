@@ -4,13 +4,19 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	err := godotenv.Load()
+
+	if err != nil {
+		log.Fatalln("Cannot load env: ", err)
+	}
+
 	g := gin.Default()
 
 	g.GET("/ping", func(ctx *gin.Context) {
-		log.Println("Server online")
 		ctx.Writer.Write([]byte("Server online"))
 	})
 
