@@ -10,6 +10,7 @@ import (
 type UserRepository interface {
 	GetUserById(ctx context.Context, userId uint32) (model.User, error)
 	CreateUser(ctx context.Context, user *model.User) error
+	GetUserByEmail(ctx context.Context, email string) (model.User, error)
 }
 
 type userRepositoryImpl struct {
@@ -29,6 +30,21 @@ func (u *userRepositoryImpl) GetUserById(ctx context.Context, userId uint32) (mo
 		WithContext(ctx).
 		Model(&user).
 		Where("id = ?", userId).
+		Find(&user).
+		Error
+
+	return user, err
+}
+
+func (u *userRepositoryImpl) GetUserByEmail(ctx context.Context, email string) (model.User, error) {
+	db := u.db.GetConnection()
+
+	user := model.User{}
+
+	err := db.
+		WithContext(ctx).
+		Model(&user).
+		Where("email = ?", email).
 		Find(&user).
 		Error
 

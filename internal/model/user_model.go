@@ -25,6 +25,11 @@ type UserSignUp struct {
 	DOB      string `json:"dob" validate:"required"`
 }
 
+type UserSignIn struct {
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required"`
+}
+
 type UserView struct {
 	ID       uint32 `json:"id"`
 	Username string `json:"username"`

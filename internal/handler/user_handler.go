@@ -14,6 +14,7 @@ import (
 type UserHandler interface {
 	GetUserById(ctx *gin.Context)
 	UserRegister(ctx *gin.Context)
+	UserLogin(ctx *gin.Context)
 }
 
 type userHandlerImpl struct {
@@ -93,4 +94,46 @@ func (u *userHandlerImpl) UserRegister(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusCreated, user)
+}
+
+// Login User godoc
+//
+// @Summary		Route to login user
+// @Description	If success, login route return an access token
+// @Tags		users
+// @Accept		json
+// @Produce		json
+// @Param		user	body	model.UserSignIn	true	"Login User"
+// @Success		200		{object}	response.TokenResponse
+// @Failure		400		{object}	response.ErrorResponse
+// @Failure		500		{object}	response.ErrorResponse
+// @Router		/v1/users/login [post]
+func (u *userHandlerImpl) UserLogin(ctx *gin.Context) {
+	userData := model.UserSignIn{}
+	err := ctx.ShouldBindJSON(&userData)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	validate := validator.New()
+	err = validate.Struct(userData)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	user, err := u.svc.UserLogin(ctx, userData)
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	token, err := u.svc.GenerateAccessToken(ctx, *user)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusCreated, response.TokenResponse{Token: token})
 }

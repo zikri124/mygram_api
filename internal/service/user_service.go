@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/zikri124/mygram-api/internal/model"
@@ -13,6 +14,8 @@ import (
 type UserService interface {
 	GetUserById(ctx context.Context, userId uint32) (*model.UserView, error)
 	UserRegister(ctx context.Context, userRegData model.UserSignUp) (*model.UserView, error)
+	UserLogin(ctx context.Context, userData model.UserSignIn) (*model.User, error)
+	GenerateAccessToken(ctx context.Context, user model.User) (token string, err error)
 }
 
 type userServiceImpl struct {
@@ -69,4 +72,45 @@ func (u *userServiceImpl) UserRegister(ctx context.Context, userRegData model.Us
 	userView.Age = userAge
 
 	return &userView, nil
+}
+
+func (u *userServiceImpl) UserLogin(ctx context.Context, userData model.UserSignIn) (*model.User, error) {
+	user, err := u.repo.GetUserByEmail(ctx, userData.Email)
+	if err != nil {
+		return nil, err
+	}
+	if user.ID == 0 {
+		return nil, errors.New("invalid email or password")
+	}
+
+	isValidLogin := helper.CheckPasswordHash(userData.Password, user.Password)
+	if !isValidLogin {
+		return nil, errors.New("invalid email or password")
+	}
+
+	return &user, nil
+}
+
+func (u *userServiceImpl) GenerateAccessToken(ctx context.Context, user model.User) (token string, err error) {
+	now := time.Now()
+
+	claim := model.StandardClaim{
+		Jti: fmt.Sprintf("%v", time.Now().UnixNano()),
+		Iss: "MyGram",
+		Aud: user.Username,
+		Sub: "access-token",
+		Exp: uint64(now.Add(time.Hour).Unix()),
+		Iat: uint64(now.Unix()),
+		Nbf: uint64(now.Unix()),
+	}
+
+	userClaim := model.AccessClaim{
+		StandardClaim: claim,
+		UserID:        uint64(user.ID),
+		Username:      user.Username,
+		DOB:           user.DOB,
+	}
+
+	token, err = helper.GenerateToken(userClaim)
+	return
 }

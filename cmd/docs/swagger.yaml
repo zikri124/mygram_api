@@ -1,5 +1,15 @@
 basePath: /
 definitions:
+  model.UserSignIn:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
   model.UserSignUp:
     properties:
       dob:
@@ -34,6 +44,11 @@ definitions:
           type: string
         type: array
       message:
+        type: string
+    type: object
+  response.TokenResponse:
+    properties:
+      token:
         type: string
     type: object
 host: localhost:3000
@@ -81,6 +96,36 @@ paths:
           schema:
             $ref: '#/definitions/response.ErrorResponse'
       summary: Show user data by user id
+      tags:
+      - users
+  /v1/users/login:
+    post:
+      consumes:
+      - application/json
+      description: If success, login route return an access token
+      parameters:
+      - description: Login User
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/model.UserSignIn'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.TokenResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Route to login user
       tags:
       - users
   /v1/users/register:
