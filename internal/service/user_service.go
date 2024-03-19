@@ -16,6 +16,7 @@ type UserService interface {
 	UserRegister(ctx context.Context, userRegData model.UserSignUp) (*model.UserView, error)
 	UserLogin(ctx context.Context, userData model.UserSignIn) (*model.User, error)
 	GenerateAccessToken(ctx context.Context, user model.User) (token string, err error)
+	EditUser(ctx context.Context, userData model.User) (*model.UserView, error)
 }
 
 type userServiceImpl struct {
@@ -99,7 +100,7 @@ func (u *userServiceImpl) GenerateAccessToken(ctx context.Context, user model.Us
 		Iss: "MyGram",
 		Aud: user.Username,
 		Sub: "access-token",
-		Exp: uint64(now.Add(time.Hour).Unix()),
+		Exp: uint64(now.Add(12 * time.Hour).Unix()),
 		Iat: uint64(now.Unix()),
 		Nbf: uint64(now.Unix()),
 	}
@@ -113,4 +114,28 @@ func (u *userServiceImpl) GenerateAccessToken(ctx context.Context, user model.Us
 
 	token, err = helper.GenerateToken(userClaim)
 	return
+}
+
+func (u *userServiceImpl) EditUser(ctx context.Context, user model.User) (*model.UserView, error) {
+	user.UpdatedAt = time.Now()
+	userFind, err := u.repo.GetUserByEmail(ctx, user.Email)
+	if err != nil {
+		return nil, err
+	}
+
+	if userFind.ID != 0 && user.ID != userFind.ID {
+		return nil, errors.New("email already exist")
+	}
+
+	err = u.repo.EditUser(ctx, &user)
+	if err != nil {
+		return nil, err
+	}
+
+	userView := model.UserView{}
+	userView.ID = user.ID
+	userView.Email = user.Email
+	userView.Username = user.Username
+	userView.Age = helper.CountAge(user.DOB)
+	return &userView, nil
 }

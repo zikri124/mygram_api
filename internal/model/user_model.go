@@ -30,6 +30,11 @@ type UserSignIn struct {
 	Password string `json:"password" validate:"required"`
 }
 
+type UserEdit struct {
+	Email    string `json:"email" validate:"required,email"`
+	Username string `json:"username" validate:"required"`
+}
+
 type UserView struct {
 	ID       uint32 `json:"id"`
 	Username string `json:"username"`

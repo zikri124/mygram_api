@@ -15,6 +15,7 @@ type UserHandler interface {
 	GetUserById(ctx *gin.Context)
 	UserRegister(ctx *gin.Context)
 	UserLogin(ctx *gin.Context)
+	UserEdit(ctx *gin.Context)
 }
 
 type userHandlerImpl struct {
@@ -29,8 +30,8 @@ func NewUserHandler(svc service.UserService) UserHandler {
 //
 // @Summary		Show user data by user id
 // @Description	Show data of user by id given in params
-// @Tags			users
-// @Accept			json
+// @Tags		users
+// @Accept		json
 // @Produce		json
 // @Param		id		path		int		true	"User ID"
 // @Success		200		{object}	model.UserView
@@ -135,5 +136,37 @@ func (u *userHandlerImpl) UserLogin(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, response.TokenResponse{Token: token})
+	ctx.JSON(http.StatusOK, response.TokenResponse{Token: token})
+}
+
+func (u *userHandlerImpl) UserEdit(ctx *gin.Context) {
+	userId, err := strconv.Atoi(ctx.Param("id"))
+	if userId == 0 || err != nil {
+		ctx.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	userEditData := model.UserEdit{}
+	err = ctx.ShouldBindJSON(&userEditData)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	validate := validator.New()
+	err = validate.Struct(userEditData)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	user := model.User{ID: uint32(userId), Username: userEditData.Username, Email: userEditData.Email}
+
+	userRes, err := u.svc.EditUser(ctx, user)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, userRes)
 }
