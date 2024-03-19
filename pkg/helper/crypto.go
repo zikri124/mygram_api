@@ -49,3 +49,27 @@ func GenerateToken(claim any) (token string, err error) {
 	}
 	return
 }
+
+func ValidateToken(token string) (claim jwt.MapClaims, err error) {
+	jwtSecret := os.Getenv("JWT_SECRET")
+
+	jwtToken, err := jwt.Parse(token, func(t *jwt.Token) (interface{}, error) {
+		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, jwt.ErrSignatureInvalid
+		}
+
+		return []byte(jwtSecret), nil
+	})
+
+	if err != nil {
+		log.Println("validating jwt error : ", err.Error())
+	}
+
+	claim, ok := jwtToken.Claims.(jwt.MapClaims)
+	if !ok {
+		log.Println("Error when translating claim")
+		return
+	}
+
+	return
+}
