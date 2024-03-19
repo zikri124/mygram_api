@@ -21,6 +21,19 @@ func NewUserHandler(svc service.UserService) UserHandler {
 	return &userHandlerImpl{svc: svc}
 }
 
+// Show User by Id godoc
+//
+// @Summary		Show user data by user id
+// @Description	Show data of user by id given in params
+// @Tags			users
+// @Accept			json
+// @Produce		json
+// @Param		id		path		int		true	"User ID"
+// @Success		200		{object}	model.UserView
+// @Failure		400		{object}	error
+// @Failure		404		{object}	error
+// @Failure		500		{object}	error
+// @Router			/v1/users/{id} [get]
 func (u *userHandlerImpl) GetUserById(ctx *gin.Context) {
 	userId, err := strconv.Atoi(ctx.Param("id"))
 	if userId == 0 || err != nil {

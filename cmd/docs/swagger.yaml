@@ -1,0 +1,64 @@
+basePath: /
+definitions:
+  model.UserView:
+    properties:
+      created_at:
+        type: string
+      dob:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      updated_at:
+        type: string
+      username:
+        type: string
+    type: object
+host: localhost:3000
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: api doc for golang bootcamp hackativ8 x kominfo
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: RETAIL ADMIN API DOCUMENTATION
+  version: "2.0"
+paths:
+  /v1/users/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Show data of user by id given in params
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.UserView'
+        "400":
+          description: Bad Request
+          schema: {}
+        "404":
+          description: Not Found
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Show user data by user id
+      tags:
+      - users
+schemes:
+- http
+swagger: "2.0"
