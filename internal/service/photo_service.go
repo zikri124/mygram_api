@@ -9,8 +9,10 @@ import (
 )
 
 type PhotoService interface {
-	PostPhoto(ctx context.Context, photo model.Photo) (*model.PhotoRes, error)
+	PostPhoto(ctx context.Context, photo model.Photo) (*model.PhotoResCreate, error)
 	GetAllPhotos(ctx context.Context) ([]model.PhotoView, error)
+	GetPhotoById(ctx context.Context, photoId uint32) (*model.Photo, error)
+	UpdatePhoto(ctx context.Context, photo model.Photo) (*model.PhotoResUpdate, error)
 }
 
 type photoServiceImpl struct {
@@ -21,13 +23,13 @@ func NewPhotoService(repo repository.PhotoRepository) PhotoService {
 	return &photoServiceImpl{repo: repo}
 }
 
-func (p *photoServiceImpl) PostPhoto(ctx context.Context, photo model.Photo) (*model.PhotoRes, error) {
+func (p *photoServiceImpl) PostPhoto(ctx context.Context, photo model.Photo) (*model.PhotoResCreate, error) {
 	err := p.repo.CreatePhoto(ctx, &photo)
 	if err != nil {
 		return nil, err
 	}
 
-	photoRes := model.PhotoRes{}
+	photoRes := model.PhotoResCreate{}
 	photoRes.ID = photo.ID
 	photoRes.Caption = photo.Caption
 	photoRes.PhotoUrl = photo.PhotoUrl
@@ -45,4 +47,30 @@ func (p *photoServiceImpl) GetAllPhotos(ctx context.Context) ([]model.PhotoView,
 	}
 
 	return photos, nil
+}
+
+func (p *photoServiceImpl) GetPhotoById(ctx context.Context, photoId uint32) (*model.Photo, error) {
+	photo, err := p.repo.GetPhotoById(ctx, photoId)
+	if err != nil {
+		return nil, err
+	}
+
+	return photo, nil
+}
+
+func (p *photoServiceImpl) UpdatePhoto(ctx context.Context, photo model.Photo) (*model.PhotoResUpdate, error) {
+	err := p.repo.UpdatePhoto(ctx, &photo)
+	if err != nil {
+		return nil, err
+	}
+
+	photoRes := model.PhotoResUpdate{}
+	photoRes.ID = photo.ID
+	photoRes.Caption = photo.Caption
+	photoRes.PhotoUrl = photo.PhotoUrl
+	photoRes.Title = photo.Title
+	photoRes.UserId = photo.UserId
+	photoRes.UpdatedAt = photo.UpdatedAt
+
+	return &photoRes, nil
 }

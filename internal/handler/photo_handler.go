@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator"
@@ -13,6 +14,7 @@ import (
 type PhotoHandler interface {
 	PostPhoto(ctx *gin.Context)
 	GetAllPhotos(ctx *gin.Context)
+	UpdatePhoto(ctx *gin.Context)
 }
 
 type photoHandlerImpl struct {
@@ -74,4 +76,51 @@ func (p *photoHandlerImpl) GetAllPhotos(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusCreated, photos)
+}
+
+func (p *photoHandlerImpl) UpdatePhoto(ctx *gin.Context) {
+	photoId, err := strconv.Atoi(ctx.Param("id"))
+	if photoId == 0 || err != nil {
+		ctx.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	photo, err := p.svc.GetPhotoById(ctx, uint32(photoId))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	if photo.ID == 0 {
+		ctx.JSON(http.StatusNotFound, response.ErrorResponse{Message: "Photo did not exist"})
+		return
+	}
+
+	photoEditData := model.UpdatePhoto{}
+	err = ctx.ShouldBindJSON(&photoEditData)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	validate := validator.New()
+	err = validate.Struct(photoEditData)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	photoUpdate := model.Photo{}
+	photoUpdate.ID = uint32(photoId)
+	photoUpdate.Title = photoEditData.Title
+	photoUpdate.Caption = photoEditData.Caption
+	photoUpdate.PhotoUrl = photoEditData.PhotoUrl
+
+	photoRes, err := p.svc.UpdatePhoto(ctx, photoUpdate)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, photoRes)
 }

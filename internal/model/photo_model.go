@@ -34,7 +34,7 @@ type PhotoView struct {
 	User      UserItem  `json:"user" gorm:"foreignKey:UserId;references:ID"`
 }
 
-type PhotoRes struct {
+type PhotoResCreate struct {
 	ID        uint32    `json:"id"`
 	Title     string    `json:"title"`
 	Caption   string    `json:"caption"`
@@ -43,11 +43,26 @@ type PhotoRes struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
+type PhotoResUpdate struct {
+	ID        uint32    `json:"id"`
+	Title     string    `json:"title"`
+	Caption   string    `json:"caption"`
+	PhotoUrl  string    `json:"photo_url"`
+	UserId    uint32    `json:"user_id"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
 type CreatePhoto struct {
 	Title    string `json:"title" validate:"required"`
 	Caption  string `json:"caption"`
 	PhotoUrl string `json:"photo_url" validate:"required"`
 	UserId   uint32 `json:"user_id" validate:"required"`
+}
+
+type UpdatePhoto struct {
+	Title    string `json:"title" validate:"required"`
+	Caption  string `json:"caption"`
+	PhotoUrl string `json:"photo_url" validate:"required"`
 }
 
 func (p *Photo) BeforeCreate(db *gorm.DB) (err error) {

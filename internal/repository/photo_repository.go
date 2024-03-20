@@ -11,6 +11,8 @@ import (
 type PhotoRepository interface {
 	CreatePhoto(ctx context.Context, photo *model.Photo) error
 	GetAllPhotos(ctx context.Context) ([]model.PhotoView, error)
+	GetPhotoById(ctx context.Context, photoId uint32) (*model.Photo, error)
+	UpdatePhoto(ctx context.Context, photo *model.Photo) error
 }
 
 type photoRepositoryImpl struct {
@@ -51,4 +53,33 @@ func (p *photoRepositoryImpl) GetAllPhotos(ctx context.Context) ([]model.PhotoVi
 	}
 
 	return photos, nil
+}
+
+func (p *photoRepositoryImpl) GetPhotoById(ctx context.Context, photoId uint32) (*model.Photo, error) {
+	db := p.db.GetConnection()
+	photo := model.Photo{}
+
+	err := db.
+		WithContext(ctx).
+		Table("photos").
+		Where("id = ?", photoId).
+		Where("deleted_at IS NULL").
+		Find(&photo).
+		Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &photo, nil
+}
+
+func (p *photoRepositoryImpl) UpdatePhoto(ctx context.Context, photo *model.Photo) error {
+	db := p.db.GetConnection()
+	err := db.
+		WithContext(ctx).
+		Updates(&photo).
+		Error
+
+	return err
 }
