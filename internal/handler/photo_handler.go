@@ -70,7 +70,7 @@ func (p *photoHandlerImpl) GetAllPhotos(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, photos)
+	ctx.JSON(http.StatusOK, photos)
 }
 
 func (p *photoHandlerImpl) UpdatePhoto(ctx *gin.Context) {
