@@ -13,6 +13,7 @@ type CommentRepository interface {
 	GetAllComment(ctx context.Context) ([]model.CommentView, error)
 	GetCommentById(ctx context.Context, commentId uint32) (*model.Comment, error)
 	UpdateComment(ctx context.Context, comment *model.Comment) error
+	DeleteComment(ctx context.Context, commentId uint32) error
 }
 
 type commentRepositoryImpl struct {
@@ -82,6 +83,19 @@ func (c *commentRepositoryImpl) UpdateComment(ctx context.Context, comment *mode
 	err := db.
 		WithContext(ctx).
 		Updates(&comment).
+		Error
+
+	return err
+}
+
+func (c *commentRepositoryImpl) DeleteComment(ctx context.Context, commentId uint32) error {
+	db := c.db.GetConnection()
+	comment := model.Comment{ID: commentId}
+
+	err := db.
+		WithContext(ctx).
+		Model(&comment).
+		Delete(&comment).
 		Error
 
 	return err

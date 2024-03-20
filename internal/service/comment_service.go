@@ -12,6 +12,7 @@ type CommentService interface {
 	GetAllComments(ctx context.Context) ([]model.CommentView, error)
 	GetCommentById(ctx context.Context, commentId uint32) (*model.Comment, error)
 	UpdateComment(ctx context.Context, comment model.Comment) (*model.UpdateCommentRes, error)
+	DeleteComment(ctx context.Context, commentId uint32) error
 }
 
 type commentServiceImpl struct {
@@ -76,4 +77,10 @@ func (c *commentServiceImpl) UpdateComment(ctx context.Context, comment model.Co
 	commentRes.UpdatedAt = comment.UpdatedAt
 
 	return &commentRes, nil
+}
+
+func (c *commentServiceImpl) DeleteComment(ctx context.Context, commentId uint32) error {
+	err := c.repo.DeleteComment(ctx, commentId)
+
+	return err
 }

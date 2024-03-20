@@ -24,4 +24,5 @@ func (c *commentRouterImpl) Mount() {
 	c.v.POST("", c.handler.PostComment)
 	c.v.GET("", c.handler.GetAllComments)
 	c.v.PUT("/:id", c.handler.UpdateComment)
+	c.v.DELETE("/:id", c.handler.DeleteComment)
 }

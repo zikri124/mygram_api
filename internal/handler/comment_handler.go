@@ -16,6 +16,7 @@ type CommentHandler interface {
 	PostComment(ctx *gin.Context)
 	GetAllComments(ctx *gin.Context)
 	UpdateComment(ctx *gin.Context)
+	DeleteComment(ctx *gin.Context)
 }
 
 type commentHandlerImpl struct {
@@ -130,4 +131,42 @@ func (c *commentHandlerImpl) UpdateComment(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, commentRes)
+}
+
+func (c *commentHandlerImpl) DeleteComment(ctx *gin.Context) {
+	commentId, err := strconv.Atoi(ctx.Param("id"))
+	if commentId == 0 || err != nil {
+		ctx.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	photo, err := c.svc.GetCommentById(ctx, uint32(commentId))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	if photo.ID == 0 {
+		ctx.JSON(http.StatusNotFound, response.ErrorResponse{Message: "comment did not exist"})
+		return
+	}
+
+	userId, err := helper.GetUserIdFromGinCtx(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	if userId != uint32(photo.UserId) {
+		ctx.JSON(http.StatusUnauthorized, response.ErrorResponse{Message: "unauthorized to do this request"})
+		return
+	}
+
+	err = c.svc.DeleteComment(ctx, uint32(commentId))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, response.SuccessResponse{Message: "Your comment has been successfully deleted"})
 }
