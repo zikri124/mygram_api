@@ -91,6 +91,17 @@ func (p *photoHandlerImpl) UpdatePhoto(ctx *gin.Context) {
 		return
 	}
 
+	userId, err := helper.GetUserIdFromGinCtx(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	if userId != uint32(photo.UserId) {
+		ctx.JSON(http.StatusUnauthorized, response.ErrorResponse{Message: "unauthorized to do this request"})
+		return
+	}
+
 	photoEditData := model.UpdatePhoto{}
 	err = ctx.ShouldBindJSON(&photoEditData)
 	if err != nil {
