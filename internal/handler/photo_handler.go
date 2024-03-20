@@ -15,6 +15,7 @@ type PhotoHandler interface {
 	PostPhoto(ctx *gin.Context)
 	GetAllPhotos(ctx *gin.Context)
 	UpdatePhoto(ctx *gin.Context)
+	DeletePhoto(ctx *gin.Context)
 }
 
 type photoHandlerImpl struct {
@@ -123,4 +124,49 @@ func (p *photoHandlerImpl) UpdatePhoto(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, photoRes)
+}
+
+func (p *photoHandlerImpl) DeletePhoto(ctx *gin.Context) {
+	photoId, err := strconv.Atoi(ctx.Param("id"))
+	if photoId == 0 || err != nil {
+		ctx.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	photo, err := p.svc.GetPhotoById(ctx, uint32(photoId))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	userIdRaw, isExist := ctx.Get("UserId")
+	if !isExist {
+		ctx.JSON(http.StatusUnauthorized, response.ErrorResponse{Message: "payload not provided in access token"})
+		return
+	}
+
+	userIdFloat := userIdRaw.(float64)
+	userId := int(userIdFloat)
+	if userId == 0 {
+		ctx.JSON(http.StatusUnauthorized, response.ErrorResponse{Message: "payload not provided in access token"})
+		return
+	}
+
+	if photo.ID == 0 {
+		ctx.JSON(http.StatusNotFound, response.ErrorResponse{Message: "Photo did not exist"})
+		return
+	}
+
+	if userId != int(photo.UserId) {
+		ctx.JSON(http.StatusUnauthorized, response.ErrorResponse{Message: "unauthorized to do this request"})
+		return
+	}
+
+	err = p.svc.DeletePhoto(ctx, uint32(photoId))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, response.SuccessResponse{Message: "Your photo has been successfully deleted"})
 }

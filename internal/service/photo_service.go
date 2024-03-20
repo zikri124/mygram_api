@@ -13,6 +13,7 @@ type PhotoService interface {
 	GetAllPhotos(ctx context.Context) ([]model.PhotoView, error)
 	GetPhotoById(ctx context.Context, photoId uint32) (*model.Photo, error)
 	UpdatePhoto(ctx context.Context, photo model.Photo) (*model.PhotoResUpdate, error)
+	DeletePhoto(ctx context.Context, photoId uint32) error
 }
 
 type photoServiceImpl struct {
@@ -73,4 +74,10 @@ func (p *photoServiceImpl) UpdatePhoto(ctx context.Context, photo model.Photo) (
 	photoRes.UpdatedAt = photo.UpdatedAt
 
 	return &photoRes, nil
+}
+
+func (p *photoServiceImpl) DeletePhoto(ctx context.Context, photoId uint32) error {
+	err := p.repo.DeletePhoto(ctx, photoId)
+
+	return err
 }

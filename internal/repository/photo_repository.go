@@ -13,6 +13,7 @@ type PhotoRepository interface {
 	GetAllPhotos(ctx context.Context) ([]model.PhotoView, error)
 	GetPhotoById(ctx context.Context, photoId uint32) (*model.Photo, error)
 	UpdatePhoto(ctx context.Context, photo *model.Photo) error
+	DeletePhoto(ctx context.Context, photoId uint32) error
 }
 
 type photoRepositoryImpl struct {
@@ -79,6 +80,19 @@ func (p *photoRepositoryImpl) UpdatePhoto(ctx context.Context, photo *model.Phot
 	err := db.
 		WithContext(ctx).
 		Updates(&photo).
+		Error
+
+	return err
+}
+
+func (p *photoRepositoryImpl) DeletePhoto(ctx context.Context, photoId uint32) error {
+	db := p.db.GetConnection()
+	photo := model.Photo{ID: photoId}
+
+	err := db.
+		WithContext(ctx).
+		Model(&photo).
+		Delete(&photo).
 		Error
 
 	return err
