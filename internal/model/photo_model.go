@@ -65,6 +65,14 @@ type UpdatePhoto struct {
 	PhotoUrl string `json:"photo_url" validate:"required"`
 }
 
+type PhotoItem struct {
+	ID       uint32 `json:"id"`
+	Title    string `json:"title"`
+	Caption  string `json:"caption"`
+	PhotoUrl string `json:"photo_url"`
+	UserId   uint32 `json:"user_id"`
+}
+
 func (p *Photo) BeforeCreate(db *gorm.DB) (err error) {
 	if p.ID == 0 {
 		p.ID = uuid.New().ID()
