@@ -10,7 +10,7 @@ import (
 type Comment struct {
 	ID        uint32    `json:"id"`
 	UserId    uint32    `json:"user_id"`
-	PhotoId   string    `json:"photo_id"`
+	PhotoId   uint32    `json:"photo_id"`
 	Message   string    `json:"message"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
@@ -18,9 +18,16 @@ type Comment struct {
 }
 
 type CreateComment struct {
-	UserId  uint32 `json:"user_id" validate:"required"`
-	PhotoId string `json:"photo_id" validate:"required"`
+	PhotoId uint32 `json:"photo_id" validate:"required"`
 	Message string `json:"message" validate:"required"`
+}
+
+type CreateCommentRes struct {
+	ID        uint32    `json:"id"`
+	UserId    uint32    `json:"user_id"`
+	Message   string    `json:"message"`
+	PhotoId   uint32    `json:"photo_id"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 func (c *Comment) BeforeCreate(db *gorm.DB) (err error) {

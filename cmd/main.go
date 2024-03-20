@@ -52,6 +52,13 @@ func main() {
 	photoRouter := router.NewPhotoRouter(photoRouteGroup, photoHandler)
 	photoRouter.Mount()
 
+	commentRouteGroup := g.Group("/v1/comments")
+	commentRepo := repository.NewCommentRepository(gorm)
+	commentService := service.NewCommentService(commentRepo)
+	commentHandler := handler.NewCommentHandler(commentService, photoService)
+	commentRouter := router.NewCommentRouter(commentRouteGroup, commentHandler)
+	commentRouter.Mount()
+
 	g.GET("/ping", func(ctx *gin.Context) {
 		ctx.Writer.Write([]byte("Server online"))
 	})
