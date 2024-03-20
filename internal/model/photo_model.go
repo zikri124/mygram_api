@@ -18,6 +18,31 @@ type Photo struct {
 	DeletedAt gorm.DeletedAt
 }
 
+type PhotoCreate struct {
+	Title    string `json:"title" validate:"required"`
+	Caption  string `json:"caption"`
+	PhotoUrl string `json:"photo_url" validate:"required"`
+}
+
+type PhotoView struct {
+	ID        uint32    `json:"id"`
+	Title     string    `json:"title"`
+	Caption   string    `json:"caption"`
+	PhotoUrl  string    `json:"photo_url"`
+	UserId    uint32    `json:"user_id"`
+	CreatedAt time.Time `json:"created_at"`
+	User      UserEdit
+}
+
+type PhotoRes struct {
+	ID        uint32    `json:"id"`
+	Title     string    `json:"title"`
+	Caption   string    `json:"caption"`
+	PhotoUrl  string    `json:"photo_url"`
+	UserId    uint32    `json:"user_id"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
 type CreatePhoto struct {
 	Title    string `json:"title" validate:"required"`
 	Caption  string `json:"caption"`

@@ -45,6 +45,13 @@ func main() {
 	userRouter := router.NewUserRouter(userRouteGroup, userHandler)
 	userRouter.Mount()
 
+	photoRouteGroup := g.Group("/v1/photos")
+	photoRepo := repository.NewPhotoRepository(gorm)
+	photoService := service.NewPhotoService(photoRepo)
+	photoHandler := handler.NewPhotoHandler(photoService)
+	photoRouter := router.NewPhotoRouter(photoRouteGroup, photoHandler)
+	photoRouter.Mount()
+
 	g.GET("/ping", func(ctx *gin.Context) {
 		ctx.Writer.Write([]byte("Server online"))
 	})
