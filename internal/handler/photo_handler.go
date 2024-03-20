@@ -62,5 +62,5 @@ func (p *photoHandlerImpl) PostPhoto(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, photoRes)
+	ctx.JSON(http.StatusCreated, photoRes)
 }
