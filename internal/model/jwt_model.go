@@ -14,7 +14,7 @@ type StandardClaim struct {
 
 type AccessClaim struct {
 	StandardClaim
-	UserID   uint64    `json:"user_id"`
+	UserID   uint32    `json:"user_id"`
 	Username string    `json:"username"`
 	DOB      time.Time `json:"dob"`
 }

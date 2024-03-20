@@ -108,7 +108,7 @@ func (u *userServiceImpl) GenerateAccessToken(ctx context.Context, user model.Us
 
 	userClaim := model.AccessClaim{
 		StandardClaim: claim,
-		UserID:        uint64(user.ID),
+		UserID:        uint32(user.ID),
 		Username:      user.Username,
 		DOB:           user.DOB,
 	}
