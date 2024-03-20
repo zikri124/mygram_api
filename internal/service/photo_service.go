@@ -10,6 +10,7 @@ import (
 
 type PhotoService interface {
 	PostPhoto(ctx context.Context, photo model.Photo) (*model.PhotoRes, error)
+	GetAllPhotos(ctx context.Context) ([]model.PhotoView, error)
 }
 
 type photoServiceImpl struct {
@@ -35,4 +36,13 @@ func (p *photoServiceImpl) PostPhoto(ctx context.Context, photo model.Photo) (*m
 	photoRes.CreatedAt = time.Now()
 
 	return &photoRes, nil
+}
+
+func (p *photoServiceImpl) GetAllPhotos(ctx context.Context) ([]model.PhotoView, error) {
+	photos, err := p.repo.GetAllPhotos(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return photos, nil
 }

@@ -31,7 +31,7 @@ type PhotoView struct {
 	PhotoUrl  string    `json:"photo_url"`
 	UserId    uint32    `json:"user_id"`
 	CreatedAt time.Time `json:"created_at"`
-	User      UserEdit
+	User      UserItem  `json:"user" gorm:"foreignKey:UserId;references:ID"`
 }
 
 type PhotoRes struct {

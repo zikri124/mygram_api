@@ -22,4 +22,5 @@ func NewPhotoRouter(v *gin.RouterGroup, handler handler.PhotoHandler) PhotoRoute
 func (p *photoRouterImpl) Mount() {
 	p.v.Use(middleware.CheckAuth)
 	p.v.POST("", p.handler.PostPhoto)
+	p.v.GET("", p.handler.GetAllPhotos)
 }

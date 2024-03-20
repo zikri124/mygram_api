@@ -42,6 +42,12 @@ type UserView struct {
 	Age      uint16 `json:"age"`
 }
 
+type UserItem struct {
+	ID       uint32 `json:"id"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
+}
+
 func (u *User) BeforeCreate(db *gorm.DB) (err error) {
 	if u.ID == 0 {
 		u.ID = uuid.New().ID()

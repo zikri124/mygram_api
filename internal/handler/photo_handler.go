@@ -12,6 +12,7 @@ import (
 
 type PhotoHandler interface {
 	PostPhoto(ctx *gin.Context)
+	GetAllPhotos(ctx *gin.Context)
 }
 
 type photoHandlerImpl struct {
@@ -63,4 +64,14 @@ func (p *photoHandlerImpl) PostPhoto(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusCreated, photoRes)
+}
+
+func (p *photoHandlerImpl) GetAllPhotos(ctx *gin.Context) {
+	photos, err := p.svc.GetAllPhotos(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusCreated, photos)
 }
