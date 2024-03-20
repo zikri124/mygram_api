@@ -9,6 +9,7 @@ import (
 
 type CommentService interface {
 	PostComment(ctx context.Context, comment model.Comment) (*model.CreateCommentRes, error)
+	GetAllComments(ctx context.Context) ([]model.CommentView, error)
 }
 
 type commentServiceImpl struct {
@@ -33,4 +34,13 @@ func (c *commentServiceImpl) PostComment(ctx context.Context, comment model.Comm
 	commentRes.CreatedAt = comment.CreatedAt
 
 	return &commentRes, nil
+}
+
+func (c *commentServiceImpl) GetAllComments(ctx context.Context) ([]model.CommentView, error) {
+	comments, err := c.repo.GetAllComment(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return comments, nil
 }

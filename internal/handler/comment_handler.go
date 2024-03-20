@@ -13,6 +13,7 @@ import (
 
 type CommentHandler interface {
 	PostComment(ctx *gin.Context)
+	GetAllComments(ctx *gin.Context)
 }
 
 type commentHandlerImpl struct {
@@ -68,4 +69,14 @@ func (c *commentHandlerImpl) PostComment(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusCreated, commentRes)
+}
+
+func (c *commentHandlerImpl) GetAllComments(ctx *gin.Context) {
+	comments, err := c.svc.GetAllComments(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, comments)
 }

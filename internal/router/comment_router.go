@@ -22,4 +22,5 @@ func NewCommentRouter(v *gin.RouterGroup, handler handler.CommentHandler) Commen
 func (c *commentRouterImpl) Mount() {
 	c.v.Use(middleware.CheckAuth)
 	c.v.POST("", c.handler.PostComment)
+	c.v.GET("", c.handler.GetAllComments)
 }
