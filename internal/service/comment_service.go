@@ -8,7 +8,7 @@ import (
 )
 
 type CommentService interface {
-	PostComment(ctx context.Context, comment model.Comment) (*model.CreateCommentRes, error)
+	PostComment(ctx context.Context, userId uint32, newComment model.CreateComment) (*model.CreateCommentRes, error)
 	GetAllComments(ctx context.Context) ([]model.CommentView, error)
 	GetCommentById(ctx context.Context, commentId uint32) (*model.Comment, error)
 	UpdateComment(ctx context.Context, comment model.Comment) (*model.UpdateCommentRes, error)
@@ -22,7 +22,12 @@ func NewCommentService(repo repository.CommentRepository) CommentService {
 	return &commentServiceImpl{repo: repo}
 }
 
-func (c *commentServiceImpl) PostComment(ctx context.Context, comment model.Comment) (*model.CreateCommentRes, error) {
+func (c *commentServiceImpl) PostComment(ctx context.Context, userId uint32, newComment model.CreateComment) (*model.CreateCommentRes, error) {
+	comment := model.Comment{}
+	comment.UserId = userId
+	comment.Message = newComment.Message
+	comment.PhotoId = newComment.PhotoId
+
 	err := c.repo.CreateComment(ctx, &comment)
 	if err != nil {
 		return nil, err

@@ -59,12 +59,7 @@ func (c *commentHandlerImpl) PostComment(ctx *gin.Context) {
 		return
 	}
 
-	comment := model.Comment{}
-	comment.UserId = userId
-	comment.Message = newComment.Message
-	comment.PhotoId = newComment.PhotoId
-
-	commentRes, err := c.svc.PostComment(ctx, comment)
+	commentRes, err := c.svc.PostComment(ctx, userId, newComment)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
 		return
