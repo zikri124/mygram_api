@@ -25,4 +25,5 @@ func (u *userRouterImpl) Mount() {
 	u.v.POST("/login", u.handler.UserLogin)
 	u.v.Use(middleware.CheckAuth)
 	u.v.PUT("/:id", u.handler.UserEdit)
+	u.v.DELETE("", u.handler.UserDelete)
 }

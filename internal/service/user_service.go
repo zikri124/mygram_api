@@ -17,6 +17,7 @@ type UserService interface {
 	UserLogin(ctx context.Context, userData model.UserSignIn) (*model.User, error)
 	GenerateAccessToken(ctx context.Context, user model.User) (token string, err error)
 	EditUser(ctx context.Context, userData model.User) (*model.UserView, error)
+	DeleteUser(ctx context.Context, userId uint32) (err error)
 }
 
 type userServiceImpl struct {
@@ -138,4 +139,14 @@ func (u *userServiceImpl) EditUser(ctx context.Context, user model.User) (*model
 	userView.Username = user.Username
 	userView.Age = helper.CountAge(user.DOB)
 	return &userView, nil
+}
+
+func (u *userServiceImpl) DeleteUser(ctx context.Context, userId uint32) (err error) {
+	err = u.repo.DeleteUser(ctx, userId)
+
+	if err != nil {
+		return
+	}
+
+	return
 }

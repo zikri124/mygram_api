@@ -16,6 +16,7 @@ type UserHandler interface {
 	UserRegister(ctx *gin.Context)
 	UserLogin(ctx *gin.Context)
 	UserEdit(ctx *gin.Context)
+	UserDelete(ctx *gin.Context)
 }
 
 type userHandlerImpl struct {
@@ -169,4 +170,34 @@ func (u *userHandlerImpl) UserEdit(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, userRes)
+}
+
+func (u *userHandlerImpl) UserDelete(ctx *gin.Context) {
+	userIdRaw, isExist := ctx.Get("UserId")
+	if !isExist {
+		ctx.JSON(http.StatusUnauthorized, response.ErrorResponse{Message: "payload not provided in access token"})
+		return
+	}
+
+	userIdFloat := userIdRaw.(float64)
+	userId := int(userIdFloat)
+
+	user, err := u.svc.GetUserById(ctx, uint32(userId))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	if user.ID == 0 {
+		ctx.JSON(http.StatusNotFound, response.ErrorResponse{Message: "User did not exist"})
+		return
+	}
+
+	err = u.svc.DeleteUser(ctx, uint32(userId))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, response.SuccessResponse{Message: "your account has been successfully deleted"})
 }

@@ -12,6 +12,7 @@ type UserRepository interface {
 	CreateUser(ctx context.Context, user *model.User) error
 	GetUserByEmail(ctx context.Context, email string) (model.User, error)
 	EditUser(ctx context.Context, user *model.User) error
+	DeleteUser(ctx context.Context, userId uint32) error
 }
 
 type userRepositoryImpl struct {
@@ -31,6 +32,7 @@ func (u *userRepositoryImpl) GetUserById(ctx context.Context, userId uint32) (mo
 		WithContext(ctx).
 		Model(&user).
 		Where("id = ?", userId).
+		Where("deleted_at IS NULL").
 		Find(&user).
 		Error
 
@@ -70,6 +72,21 @@ func (u *userRepositoryImpl) EditUser(ctx context.Context, user *model.User) err
 	err := db.
 		WithContext(ctx).
 		Updates(&user).
+		Error
+
+	return err
+}
+
+func (u *userRepositoryImpl) DeleteUser(ctx context.Context, userId uint32) error {
+	db := u.db.GetConnection()
+
+	user := model.User{ID: userId}
+
+	err := db.
+		WithContext(ctx).
+		Table("users").
+		Where("id = ?", userId).
+		Delete(&user).
 		Error
 
 	return err
