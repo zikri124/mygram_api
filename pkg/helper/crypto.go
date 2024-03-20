@@ -2,10 +2,12 @@ package helper
 
 import (
 	"encoding/json"
+	"errors"
 	"log"
 	"os"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -72,4 +74,19 @@ func ValidateToken(token string) (claim jwt.MapClaims, err error) {
 	}
 
 	return
+}
+
+func GetUserIdFromGinCtx(ctx *gin.Context) (uint32, error) {
+	userIdRaw, isExist := ctx.Get("UserId")
+	if !isExist {
+		return 0, errors.New("cannot get payload in access token")
+	}
+
+	userIdFloat := userIdRaw.(float64)
+	userId := int(userIdFloat)
+	if userId == 0 {
+		return 0, errors.New("cannot get payload in access token")
+	}
+
+	return uint32(userId), nil
 }

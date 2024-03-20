@@ -8,6 +8,7 @@ import (
 	"github.com/go-playground/validator"
 	"github.com/zikri124/mygram-api/internal/model"
 	"github.com/zikri124/mygram-api/internal/service"
+	"github.com/zikri124/mygram-api/pkg/helper"
 	"github.com/zikri124/mygram-api/pkg/response"
 )
 
@@ -27,21 +28,14 @@ func NewPhotoHandler(svc service.PhotoService) PhotoHandler {
 }
 
 func (p *photoHandlerImpl) PostPhoto(ctx *gin.Context) {
-	userIdRaw, isExist := ctx.Get("UserId")
-	if !isExist {
-		ctx.JSON(http.StatusUnauthorized, response.ErrorResponse{Message: "payload not provided in access token"})
-		return
-	}
-
-	userIdFloat := userIdRaw.(float64)
-	userId := int(userIdFloat)
-	if userId == 0 {
-		ctx.JSON(http.StatusUnauthorized, response.ErrorResponse{Message: "payload not provided in access token"})
+	userId, err := helper.GetUserIdFromGinCtx(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
 		return
 	}
 
 	photoData := model.PhotoCreate{}
-	err := ctx.ShouldBindJSON(&photoData)
+	err = ctx.ShouldBindJSON(&photoData)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
 		return
@@ -139,25 +133,18 @@ func (p *photoHandlerImpl) DeletePhoto(ctx *gin.Context) {
 		return
 	}
 
-	userIdRaw, isExist := ctx.Get("UserId")
-	if !isExist {
-		ctx.JSON(http.StatusUnauthorized, response.ErrorResponse{Message: "payload not provided in access token"})
-		return
-	}
-
-	userIdFloat := userIdRaw.(float64)
-	userId := int(userIdFloat)
-	if userId == 0 {
-		ctx.JSON(http.StatusUnauthorized, response.ErrorResponse{Message: "payload not provided in access token"})
-		return
-	}
-
 	if photo.ID == 0 {
 		ctx.JSON(http.StatusNotFound, response.ErrorResponse{Message: "Photo did not exist"})
 		return
 	}
 
-	if userId != int(photo.UserId) {
+	userId, err := helper.GetUserIdFromGinCtx(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	if userId != uint32(photo.UserId) {
 		ctx.JSON(http.StatusUnauthorized, response.ErrorResponse{Message: "unauthorized to do this request"})
 		return
 	}
