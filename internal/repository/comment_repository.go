@@ -11,6 +11,8 @@ import (
 type CommentRepository interface {
 	CreateComment(ctx context.Context, comment *model.Comment) error
 	GetAllComment(ctx context.Context) ([]model.CommentView, error)
+	GetCommentById(ctx context.Context, commentId uint32) (*model.Comment, error)
+	UpdateComment(ctx context.Context, comment *model.Comment) error
 }
 
 type commentRepositoryImpl struct {
@@ -54,4 +56,33 @@ func (c *commentRepositoryImpl) GetAllComment(ctx context.Context) ([]model.Comm
 	}
 
 	return comments, nil
+}
+
+func (c *commentRepositoryImpl) GetCommentById(ctx context.Context, commentId uint32) (*model.Comment, error) {
+	db := c.db.GetConnection()
+	comment := model.Comment{}
+
+	err := db.
+		WithContext(ctx).
+		Table("comments").
+		Where("id = ?", commentId).
+		Where("deleted_at IS NULL").
+		Find(&comment).
+		Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &comment, nil
+}
+
+func (c *commentRepositoryImpl) UpdateComment(ctx context.Context, comment *model.Comment) error {
+	db := c.db.GetConnection()
+	err := db.
+		WithContext(ctx).
+		Updates(&comment).
+		Error
+
+	return err
 }

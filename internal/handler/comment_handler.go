@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator"
@@ -14,6 +15,7 @@ import (
 type CommentHandler interface {
 	PostComment(ctx *gin.Context)
 	GetAllComments(ctx *gin.Context)
+	UpdateComment(ctx *gin.Context)
 }
 
 type commentHandlerImpl struct {
@@ -79,4 +81,58 @@ func (c *commentHandlerImpl) GetAllComments(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, comments)
+}
+
+func (c *commentHandlerImpl) UpdateComment(ctx *gin.Context) {
+	commentId, err := strconv.Atoi(ctx.Param("id"))
+	if commentId == 0 || err != nil {
+		ctx.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	comment, err := c.svc.GetCommentById(ctx, uint32(commentId))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	if comment.ID == 0 {
+		ctx.JSON(http.StatusNotFound, response.ErrorResponse{Message: "Comment did not exist"})
+		return
+	}
+
+	userId, err := helper.GetUserIdFromGinCtx(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	if userId != uint32(comment.UserId) {
+		ctx.JSON(http.StatusUnauthorized, response.ErrorResponse{Message: "unauthorized to do this request"})
+		return
+	}
+
+	commentEditData := model.UpdateComment{}
+	err = ctx.ShouldBindJSON(&commentEditData)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	validate := validator.New()
+	err = validate.Struct(commentEditData)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	comment.Message = commentEditData.Message
+
+	commentRes, err := c.svc.UpdateComment(ctx, *comment)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, commentRes)
 }

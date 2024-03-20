@@ -30,6 +30,18 @@ type CreateCommentRes struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
+type UpdateComment struct {
+	Message string `json:"message" validate:"required"`
+}
+
+type UpdateCommentRes struct {
+	ID        uint32    `json:"id"`
+	UserId    uint32    `json:"user_id"`
+	Message   string    `json:"message"`
+	PhotoId   uint32    `json:"photo_id"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
 type CommentView struct {
 	ID        uint32    `json:"id"`
 	UserId    uint32    `json:"user_id"`
