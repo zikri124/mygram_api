@@ -48,6 +48,7 @@ func (u *userRepositoryImpl) GetUserByEmail(ctx context.Context, email string) (
 		WithContext(ctx).
 		Model(&user).
 		Where("email = ?", email).
+		Where("deleted_at IS NULL").
 		Find(&user).
 		Error
 

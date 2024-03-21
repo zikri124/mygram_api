@@ -44,6 +44,7 @@ func (p *photoRepositoryImpl) GetAllPhotosByUserId(ctx context.Context, userId u
 		WithContext(ctx).
 		Table("photos").
 		Where("user_id = ?", userId).
+		Where("deleted_at IS NULL").
 		Preload("User", func(db *gorm.DB) *gorm.DB {
 			return db.Select("id, email, username").Table("users").Where("deleted_at is null")
 		}).

@@ -44,6 +44,7 @@ func (c *commentRepositoryImpl) GetAllCommentsByPhotoId(ctx context.Context, pho
 		WithContext(ctx).
 		Table("comments").
 		Where("photo_id = ?", photoId).
+		Where("deleted_at IS NULL").
 		Preload("User", func(db *gorm.DB) *gorm.DB {
 			return db.Select("id, email, username").Table("users").Where("deleted_at is null")
 		}).

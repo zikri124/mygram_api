@@ -44,6 +44,7 @@ func (s *socialMediaRepositoryImpl) GetAllSocialMediasByUserId(ctx context.Conte
 		WithContext(ctx).
 		Table("social_medias").
 		Where("user_id = ?", userId).
+		Where("deleted_at IS NULL").
 		Preload("User", func(db *gorm.DB) *gorm.DB {
 			return db.Select("id, email, username").Table("users").Where("deleted_at is null")
 		}).
