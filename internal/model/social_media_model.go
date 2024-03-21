@@ -18,9 +18,16 @@ type SocialMedia struct {
 }
 
 type CreateSocialMedia struct {
-	UserId         uint32 `json:"user_id" validate:"required"`
 	Name           string `json:"name" validate:"required"`
 	SocialMediaUrl string `json:"social_media_url" validate:"required"`
+}
+
+type CreateSocialMediaRes struct {
+	ID             uint32    `json:"id"`
+	UserId         uint32    `json:"user_id"`
+	Name           string    `json:"name"`
+	SocialMediaUrl string    `json:"social_media_url"`
+	CreatedAt      time.Time `json:"created_at"`
 }
 
 func (u *SocialMedia) BeforeCreate(db *gorm.DB) (err error) {

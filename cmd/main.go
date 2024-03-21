@@ -59,6 +59,13 @@ func main() {
 	commentRouter := router.NewCommentRouter(commentRouteGroup, commentHandler)
 	commentRouter.Mount()
 
+	socialMediaRouteGroup := g.Group("/v1/socials")
+	socialMediaRepo := repository.NewSocialMediaRepository(gorm)
+	socialMediaService := service.NewSocialMediaService(socialMediaRepo)
+	socialMediaHandler := handler.NewSocialMediaHandler(socialMediaService)
+	socialMediaRouter := router.NewSocialMediaRouter(socialMediaRouteGroup, socialMediaHandler)
+	socialMediaRouter.Mount()
+
 	g.GET("/ping", func(ctx *gin.Context) {
 		ctx.Writer.Write([]byte("Server online"))
 	})
