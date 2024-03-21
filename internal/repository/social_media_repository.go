@@ -10,7 +10,7 @@ import (
 
 type SocialMediaRepository interface {
 	CreateSocial(ctx context.Context, social *model.SocialMedia) error
-	GetAllSocials(ctx context.Context) ([]model.SocialMediaView, error)
+	GetAllSocialMediasByUserId(ctx context.Context, userId uint32) ([]model.SocialMediaView, error)
 	GetSocialById(ctx context.Context, socialId uint32) (*model.SocialMedia, error)
 	UpdateSocial(ctx context.Context, social *model.SocialMedia) error
 	DeleteSocial(ctx context.Context, socialId uint32) error
@@ -36,13 +36,14 @@ func (s *socialMediaRepositoryImpl) CreateSocial(ctx context.Context, social *mo
 	return err
 }
 
-func (s *socialMediaRepositoryImpl) GetAllSocials(ctx context.Context) ([]model.SocialMediaView, error) {
+func (s *socialMediaRepositoryImpl) GetAllSocialMediasByUserId(ctx context.Context, userId uint32) ([]model.SocialMediaView, error) {
 	db := s.db.GetConnection()
 	socials := []model.SocialMediaView{}
 
 	err := db.
 		WithContext(ctx).
 		Table("social_medias").
+		Where("user_id = ?", userId).
 		Preload("User", func(db *gorm.DB) *gorm.DB {
 			return db.Select("id, email, username").Table("users").Where("deleted_at is null")
 		}).

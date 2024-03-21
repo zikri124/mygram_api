@@ -14,7 +14,7 @@ import (
 
 type SocialMediaHandler interface {
 	PostSocialMedia(ctx *gin.Context)
-	GetAllSocialMedias(ctx *gin.Context)
+	GetAllSocialMediasByUserId(ctx *gin.Context)
 	UpdateSocialMedia(ctx *gin.Context)
 	DeleteSocialMedia(ctx *gin.Context)
 }
@@ -57,8 +57,19 @@ func (s *socialMediaHandlerImpl) PostSocialMedia(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, socialMediaRes)
 }
 
-func (s *socialMediaHandlerImpl) GetAllSocialMedias(ctx *gin.Context) {
-	socials, err := s.svc.GetAllSocials(ctx)
+func (s *socialMediaHandlerImpl) GetAllSocialMediasByUserId(ctx *gin.Context) {
+	userIdStr := ctx.Request.URL.Query().Get("userId")
+	if userIdStr == "" {
+		ctx.JSON(http.StatusBadRequest, response.ErrorResponse{Message: "Missing User id in query"})
+		return
+	}
+	userId, err := strconv.Atoi(userIdStr)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	socials, err := s.svc.GetAllSocialMediasByUserId(ctx, uint32(userId))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
 		return
