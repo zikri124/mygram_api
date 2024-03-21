@@ -70,7 +70,18 @@ func (c *commentHandlerImpl) PostComment(ctx *gin.Context) {
 }
 
 func (c *commentHandlerImpl) GetAllComments(ctx *gin.Context) {
-	comments, err := c.svc.GetAllComments(ctx)
+	photoIdStr := ctx.Request.URL.Query().Get("photoId")
+	if photoIdStr == "" {
+		ctx.JSON(http.StatusBadRequest, response.ErrorResponse{Message: "Missing Photo id in query"})
+		return
+	}
+	photoId, err := strconv.Atoi(photoIdStr)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	comments, err := c.svc.GetAllCommentsByPhotoId(ctx, uint32(photoId))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
 		return

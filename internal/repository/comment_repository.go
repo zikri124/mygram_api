@@ -10,7 +10,7 @@ import (
 
 type CommentRepository interface {
 	CreateComment(ctx context.Context, comment *model.Comment) error
-	GetAllComment(ctx context.Context) ([]model.CommentView, error)
+	GetAllCommentsByPhotoId(ctx context.Context, photoId uint32) ([]model.CommentView, error)
 	GetCommentById(ctx context.Context, commentId uint32) (*model.Comment, error)
 	UpdateComment(ctx context.Context, comment *model.Comment) error
 	DeleteComment(ctx context.Context, commentId uint32) error
@@ -36,13 +36,14 @@ func (c *commentRepositoryImpl) CreateComment(ctx context.Context, comment *mode
 	return err
 }
 
-func (c *commentRepositoryImpl) GetAllComment(ctx context.Context) ([]model.CommentView, error) {
+func (c *commentRepositoryImpl) GetAllCommentsByPhotoId(ctx context.Context, photoId uint32) ([]model.CommentView, error) {
 	db := c.db.GetConnection()
 	comments := []model.CommentView{}
 
 	err := db.
 		WithContext(ctx).
 		Table("comments").
+		Where("photo_id = ?", photoId).
 		Preload("User", func(db *gorm.DB) *gorm.DB {
 			return db.Select("id, email, username").Table("users").Where("deleted_at is null")
 		}).
