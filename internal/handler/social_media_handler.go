@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator"
@@ -14,6 +15,7 @@ import (
 type SocialMediaHandler interface {
 	PostSocialMedia(ctx *gin.Context)
 	GetAllSocialMedias(ctx *gin.Context)
+	UpdateSocialMedia(ctx *gin.Context)
 }
 
 type socialMediaHandlerImpl struct {
@@ -62,4 +64,59 @@ func (s *socialMediaHandlerImpl) GetAllSocialMedias(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, socials)
+}
+
+func (s *socialMediaHandlerImpl) UpdateSocialMedia(ctx *gin.Context) {
+	socialId, err := strconv.Atoi(ctx.Param("id"))
+	if socialId == 0 || err != nil {
+		ctx.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	social, err := s.svc.GetSocialById(ctx, uint32(socialId))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	if social.ID == 0 {
+		ctx.JSON(http.StatusNotFound, response.ErrorResponse{Message: "User Social Media data did not exist"})
+		return
+	}
+
+	userId, err := helper.GetUserIdFromGinCtx(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	if userId != uint32(social.UserId) {
+		ctx.JSON(http.StatusUnauthorized, response.ErrorResponse{Message: "unauthorized to do this request"})
+		return
+	}
+
+	socialUpdateData := model.NewSocialMedia{}
+	err = ctx.ShouldBindJSON(&socialUpdateData)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	validate := validator.New()
+	err = validate.Struct(socialUpdateData)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	social.Name = socialUpdateData.Name
+	social.SocialMediaUrl = socialUpdateData.SocialMediaUrl
+
+	socialMediaRes, err := s.svc.UpdateSocial(ctx, *social)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, socialMediaRes)
 }

@@ -23,4 +23,5 @@ func (s *socialMediaRouterImpl) Mount() {
 	s.v.Use(middleware.CheckAuth)
 	s.v.POST("", s.handler.PostSocialMedia)
 	s.v.GET("", s.handler.GetAllSocialMedias)
+	s.v.PUT("/:id", s.handler.UpdateSocialMedia)
 }
