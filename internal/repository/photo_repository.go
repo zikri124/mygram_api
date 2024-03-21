@@ -10,7 +10,7 @@ import (
 
 type PhotoRepository interface {
 	CreatePhoto(ctx context.Context, photo *model.Photo) error
-	GetAllPhotos(ctx context.Context) ([]model.PhotoView, error)
+	GetAllPhotosByUserId(ctx context.Context, userId uint32) ([]model.PhotoView, error)
 	GetPhotoById(ctx context.Context, photoId uint32) (*model.Photo, error)
 	UpdatePhoto(ctx context.Context, photo *model.Photo) error
 	DeletePhoto(ctx context.Context, photoId uint32) error
@@ -36,13 +36,14 @@ func (p *photoRepositoryImpl) CreatePhoto(ctx context.Context, photo *model.Phot
 	return err
 }
 
-func (p *photoRepositoryImpl) GetAllPhotos(ctx context.Context) ([]model.PhotoView, error) {
+func (p *photoRepositoryImpl) GetAllPhotosByUserId(ctx context.Context, userId uint32) ([]model.PhotoView, error) {
 	db := p.db.GetConnection()
 	photos := []model.PhotoView{}
 
 	err := db.
 		WithContext(ctx).
 		Table("photos").
+		Where("user_id = ?", userId).
 		Preload("User", func(db *gorm.DB) *gorm.DB {
 			return db.Select("id, email, username").Table("users").Where("deleted_at is null")
 		}).

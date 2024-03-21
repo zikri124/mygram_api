@@ -14,7 +14,7 @@ import (
 
 type PhotoHandler interface {
 	PostPhoto(ctx *gin.Context)
-	GetAllPhotos(ctx *gin.Context)
+	GetAllPhotosByUserId(ctx *gin.Context)
 	UpdatePhoto(ctx *gin.Context)
 	DeletePhoto(ctx *gin.Context)
 }
@@ -63,8 +63,19 @@ func (p *photoHandlerImpl) PostPhoto(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, photoRes)
 }
 
-func (p *photoHandlerImpl) GetAllPhotos(ctx *gin.Context) {
-	photos, err := p.svc.GetAllPhotos(ctx)
+func (p *photoHandlerImpl) GetAllPhotosByUserId(ctx *gin.Context) {
+	userIdStr := ctx.Request.URL.Query().Get("userId")
+	if userIdStr == "" {
+		ctx.JSON(http.StatusBadRequest, response.ErrorResponse{Message: "Missing User id in query"})
+		return
+	}
+	userId, err := strconv.Atoi(userIdStr)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	photos, err := p.svc.GetAllPhotosByUserId(ctx, uint32(userId))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
 		return
