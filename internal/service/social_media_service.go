@@ -8,7 +8,7 @@ import (
 )
 
 type SocialMediaService interface {
-	PostSocial(ctx context.Context, userId uint32, social model.CreateSocialMedia) (*model.CreateSocialMediaRes, error)
+	PostSocial(ctx context.Context, userId uint32, social model.NewSocialMedia) (*model.CreateSocialMediaRes, error)
 	GetAllComments(ctx context.Context) ([]model.SocialMediaView, error)
 }
 
@@ -20,7 +20,7 @@ func NewSocialMediaService(repo repository.SocialMediaRepository) SocialMediaSer
 	return &socialMediaServiceImpl{repo: repo}
 }
 
-func (s *socialMediaServiceImpl) PostSocial(ctx context.Context, userId uint32, newSocial model.CreateSocialMedia) (*model.CreateSocialMediaRes, error) {
+func (s *socialMediaServiceImpl) PostSocial(ctx context.Context, userId uint32, newSocial model.NewSocialMedia) (*model.CreateSocialMediaRes, error) {
 	social := model.SocialMedia{}
 	social.Name = newSocial.Name
 	social.SocialMediaUrl = newSocial.SocialMediaUrl

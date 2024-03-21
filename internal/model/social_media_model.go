@@ -17,7 +17,7 @@ type SocialMedia struct {
 	DeletedAt      gorm.DeletedAt
 }
 
-type CreateSocialMedia struct {
+type NewSocialMedia struct {
 	Name           string `json:"name" validate:"required"`
 	SocialMediaUrl string `json:"social_media_url" validate:"required"`
 }
@@ -28,6 +28,14 @@ type CreateSocialMediaRes struct {
 	Name           string    `json:"name"`
 	SocialMediaUrl string    `json:"social_media_url"`
 	CreatedAt      time.Time `json:"created_at"`
+}
+
+type UpdateSocialMediaRes struct {
+	ID             uint32    `json:"id"`
+	UserId         uint32    `json:"user_id"`
+	Name           string    `json:"name"`
+	SocialMediaUrl string    `json:"social_media_url"`
+	UpdatedAt      time.Time `json:"updated_at"`
 }
 
 type SocialMediaView struct {

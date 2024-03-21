@@ -31,7 +31,7 @@ func (s *socialMediaHandlerImpl) PostSocialMedia(ctx *gin.Context) {
 		return
 	}
 
-	newSocial := model.CreateSocialMedia{}
+	newSocial := model.NewSocialMedia{}
 	err = ctx.ShouldBindJSON(&newSocial)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
