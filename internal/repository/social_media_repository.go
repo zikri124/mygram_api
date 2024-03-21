@@ -5,10 +5,12 @@ import (
 
 	"github.com/zikri124/mygram-api/internal/infrastructure"
 	"github.com/zikri124/mygram-api/internal/model"
+	"gorm.io/gorm"
 )
 
 type SocialMediaRepository interface {
 	CreateSocial(ctx context.Context, social *model.SocialMedia) error
+	GetAllSocials(ctx context.Context) ([]model.SocialMediaView, error)
 }
 
 type socialMediaRepositoryImpl struct {
@@ -29,4 +31,24 @@ func (s *socialMediaRepositoryImpl) CreateSocial(ctx context.Context, social *mo
 		Error
 
 	return err
+}
+
+func (s *socialMediaRepositoryImpl) GetAllSocials(ctx context.Context) ([]model.SocialMediaView, error) {
+	db := s.db.GetConnection()
+	socials := []model.SocialMediaView{}
+
+	err := db.
+		WithContext(ctx).
+		Table("social_medias").
+		Preload("User", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id, email, username").Table("users").Where("deleted_at is null")
+		}).
+		Find(&socials).
+		Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return socials, nil
 }

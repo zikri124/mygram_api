@@ -9,6 +9,7 @@ import (
 
 type SocialMediaService interface {
 	PostSocial(ctx context.Context, userId uint32, social model.CreateSocialMedia) (*model.CreateSocialMediaRes, error)
+	GetAllComments(ctx context.Context) ([]model.SocialMediaView, error)
 }
 
 type socialMediaServiceImpl struct {
@@ -38,4 +39,13 @@ func (s *socialMediaServiceImpl) PostSocial(ctx context.Context, userId uint32, 
 	socialMediaRes.CreatedAt = social.CreatedAt
 
 	return &socialMediaRes, nil
+}
+
+func (s *socialMediaServiceImpl) GetAllComments(ctx context.Context) ([]model.SocialMediaView, error) {
+	socials, err := s.repo.GetAllSocials(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return socials, nil
 }

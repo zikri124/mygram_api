@@ -30,6 +30,16 @@ type CreateSocialMediaRes struct {
 	CreatedAt      time.Time `json:"created_at"`
 }
 
+type SocialMediaView struct {
+	ID             uint32    `json:"id"`
+	UserId         uint32    `json:"user_id"`
+	Name           string    `json:"name"`
+	SocialMediaUrl string    `json:"social_media_url"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
+	User           UserItem  `json:"user" gorm:"foreignKey:UserId;references:ID"`
+}
+
 func (u *SocialMedia) BeforeCreate(db *gorm.DB) (err error) {
 	if u.ID == 0 {
 		u.ID = uuid.New().ID()
