@@ -59,7 +59,7 @@ func main() {
 	commentRouter := router.NewCommentRouter(commentRouteGroup, commentHandler)
 	commentRouter.Mount()
 
-	socialMediaRouteGroup := g.Group("/v1/socials")
+	socialMediaRouteGroup := g.Group("/v1/socialmedias")
 	socialMediaRepo := repository.NewSocialMediaRepository(gorm)
 	socialMediaService := service.NewSocialMediaService(socialMediaRepo)
 	socialMediaHandler := handler.NewSocialMediaHandler(socialMediaService)
