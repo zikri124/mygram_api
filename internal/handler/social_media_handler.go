@@ -16,6 +16,7 @@ type SocialMediaHandler interface {
 	PostSocialMedia(ctx *gin.Context)
 	GetAllSocialMedias(ctx *gin.Context)
 	UpdateSocialMedia(ctx *gin.Context)
+	DeleteSocialMedia(ctx *gin.Context)
 }
 
 type socialMediaHandlerImpl struct {
@@ -119,4 +120,42 @@ func (s *socialMediaHandlerImpl) UpdateSocialMedia(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, socialMediaRes)
+}
+
+func (s *socialMediaHandlerImpl) DeleteSocialMedia(ctx *gin.Context) {
+	socialId, err := strconv.Atoi(ctx.Param("id"))
+	if socialId == 0 || err != nil {
+		ctx.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	social, err := s.svc.GetSocialById(ctx, uint32(socialId))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	if social.ID == 0 {
+		ctx.JSON(http.StatusNotFound, response.ErrorResponse{Message: "User Social Media data did not exist"})
+		return
+	}
+
+	userId, err := helper.GetUserIdFromGinCtx(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	if userId != uint32(social.UserId) {
+		ctx.JSON(http.StatusUnauthorized, response.ErrorResponse{Message: "unauthorized to do this request"})
+		return
+	}
+
+	err = s.svc.DeleteSocial(ctx, uint32(socialId))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, response.SuccessResponse{Message: "Your social media has been successfully deleted"})
 }

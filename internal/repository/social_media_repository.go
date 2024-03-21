@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"log"
 
 	"github.com/zikri124/mygram-api/internal/infrastructure"
 	"github.com/zikri124/mygram-api/internal/model"
@@ -14,6 +13,7 @@ type SocialMediaRepository interface {
 	GetAllSocials(ctx context.Context) ([]model.SocialMediaView, error)
 	GetSocialById(ctx context.Context, socialId uint32) (*model.SocialMedia, error)
 	UpdateSocial(ctx context.Context, social *model.SocialMedia) error
+	DeleteSocial(ctx context.Context, socialId uint32) error
 }
 
 type socialMediaRepositoryImpl struct {
@@ -76,13 +76,24 @@ func (s *socialMediaRepositoryImpl) GetSocialById(ctx context.Context, socialId 
 }
 
 func (s *socialMediaRepositoryImpl) UpdateSocial(ctx context.Context, social *model.SocialMedia) error {
-	log.Println(social)
-
 	db := s.db.GetConnection()
 	err := db.
 		WithContext(ctx).
 		Table("social_medias").
 		Updates(&social).
+		Error
+
+	return err
+}
+
+func (s *socialMediaRepositoryImpl) DeleteSocial(ctx context.Context, socialId uint32) error {
+	db := s.db.GetConnection()
+	social := model.SocialMedia{ID: socialId}
+
+	err := db.
+		WithContext(ctx).
+		Table("social_medias").
+		Delete(&social).
 		Error
 
 	return err

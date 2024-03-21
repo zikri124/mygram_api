@@ -12,6 +12,7 @@ type SocialMediaService interface {
 	GetAllSocials(ctx context.Context) ([]model.SocialMediaView, error)
 	GetSocialById(ctx context.Context, socialId uint32) (*model.SocialMedia, error)
 	UpdateSocial(ctx context.Context, social model.SocialMedia) (*model.UpdateSocialMediaRes, error)
+	DeleteSocial(ctx context.Context, socialId uint32) error
 }
 
 type socialMediaServiceImpl struct {
@@ -76,4 +77,8 @@ func (s *socialMediaServiceImpl) UpdateSocial(ctx context.Context, social model.
 	socialRes.UpdatedAt = social.UpdatedAt
 
 	return &socialRes, nil
+}
+
+func (s *socialMediaServiceImpl) DeleteSocial(ctx context.Context, socialId uint32) error {
+	return s.repo.DeleteSocial(ctx, socialId)
 }
