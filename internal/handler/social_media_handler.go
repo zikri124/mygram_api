@@ -13,7 +13,7 @@ import (
 
 type SocialMediaHandler interface {
 	PostSocialMedia(ctx *gin.Context)
-	GetAllSocialMedia(ctx *gin.Context)
+	GetAllSocialMedias(ctx *gin.Context)
 }
 
 type socialMediaHandlerImpl struct {
@@ -54,8 +54,8 @@ func (s *socialMediaHandlerImpl) PostSocialMedia(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, socialMediaRes)
 }
 
-func (s *socialMediaHandlerImpl) GetAllSocialMedia(ctx *gin.Context) {
-	socials, err := s.svc.GetAllComments(ctx)
+func (s *socialMediaHandlerImpl) GetAllSocialMedias(ctx *gin.Context) {
+	socials, err := s.svc.GetAllSocials(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
 		return
