@@ -13,14 +13,15 @@ type PhotoRouter interface {
 type photoRouterImpl struct {
 	v       *gin.RouterGroup
 	handler handler.PhotoHandler
+	auth    middleware.Authorization
 }
 
-func NewPhotoRouter(v *gin.RouterGroup, handler handler.PhotoHandler) PhotoRouter {
-	return &photoRouterImpl{v: v, handler: handler}
+func NewPhotoRouter(v *gin.RouterGroup, handler handler.PhotoHandler, auth middleware.Authorization) PhotoRouter {
+	return &photoRouterImpl{v: v, handler: handler, auth: auth}
 }
 
 func (p *photoRouterImpl) Mount() {
-	p.v.Use(middleware.CheckAuth)
+	p.v.Use(p.auth.CheckAuth)
 	p.v.POST("", p.handler.PostPhoto)
 	p.v.GET("", p.handler.GetAllPhotosByUserId)
 	p.v.PUT("/:id", p.handler.UpdatePhoto)

@@ -13,14 +13,15 @@ type SocialMediaRouter interface {
 type socialMediaRouterImpl struct {
 	v       *gin.RouterGroup
 	handler handler.SocialMediaHandler
+	auth    middleware.Authorization
 }
 
-func NewSocialMediaRouter(v *gin.RouterGroup, handler handler.SocialMediaHandler) SocialMediaRouter {
-	return &socialMediaRouterImpl{v: v, handler: handler}
+func NewSocialMediaRouter(v *gin.RouterGroup, handler handler.SocialMediaHandler, auth middleware.Authorization) SocialMediaRouter {
+	return &socialMediaRouterImpl{v: v, handler: handler, auth: auth}
 }
 
 func (s *socialMediaRouterImpl) Mount() {
-	s.v.Use(middleware.CheckAuth)
+	s.v.Use(s.auth.CheckAuth)
 	s.v.POST("", s.handler.PostSocialMedia)
 	s.v.GET("", s.handler.GetAllSocialMediasByUserId)
 	s.v.PUT("/:id", s.handler.UpdateSocialMedia)

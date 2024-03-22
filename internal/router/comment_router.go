@@ -13,14 +13,15 @@ type CommentRouter interface {
 type commentRouterImpl struct {
 	v       *gin.RouterGroup
 	handler handler.CommentHandler
+	auth    middleware.Authorization
 }
 
-func NewCommentRouter(v *gin.RouterGroup, handler handler.CommentHandler) CommentRouter {
-	return &commentRouterImpl{v: v, handler: handler}
+func NewCommentRouter(v *gin.RouterGroup, handler handler.CommentHandler, auth middleware.Authorization) CommentRouter {
+	return &commentRouterImpl{v: v, handler: handler, auth: auth}
 }
 
 func (c *commentRouterImpl) Mount() {
-	c.v.Use(middleware.CheckAuth)
+	c.v.Use(c.auth.CheckAuth)
 	c.v.POST("", c.handler.PostComment)
 	c.v.GET("", c.handler.GetAllComments)
 	c.v.PUT("/:id", c.handler.UpdateComment)

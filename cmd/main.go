@@ -8,6 +8,7 @@ import (
 	_ "github.com/zikri124/mygram-api/cmd/docs"
 	"github.com/zikri124/mygram-api/internal/handler"
 	"github.com/zikri124/mygram-api/internal/infrastructure"
+	"github.com/zikri124/mygram-api/internal/middleware"
 	"github.com/zikri124/mygram-api/internal/repository"
 	"github.com/zikri124/mygram-api/internal/router"
 	"github.com/zikri124/mygram-api/internal/service"
@@ -42,28 +43,31 @@ func main() {
 	userRepo := repository.NewUserRepository(gorm)
 	userService := service.NewUserService(userRepo)
 	userHandler := handler.NewUserHandler(userService)
-	userRouter := router.NewUserRouter(userRouteGroup, userHandler)
+
+	auth := middleware.NewAuthorization(userService)
+
+	userRouter := router.NewUserRouter(userRouteGroup, userHandler, auth)
 	userRouter.Mount()
 
 	photoRouteGroup := g.Group("/v1/photos")
 	photoRepo := repository.NewPhotoRepository(gorm)
 	photoService := service.NewPhotoService(photoRepo)
 	photoHandler := handler.NewPhotoHandler(photoService)
-	photoRouter := router.NewPhotoRouter(photoRouteGroup, photoHandler)
+	photoRouter := router.NewPhotoRouter(photoRouteGroup, photoHandler, auth)
 	photoRouter.Mount()
 
 	commentRouteGroup := g.Group("/v1/comments")
 	commentRepo := repository.NewCommentRepository(gorm)
 	commentService := service.NewCommentService(commentRepo)
 	commentHandler := handler.NewCommentHandler(commentService, photoService)
-	commentRouter := router.NewCommentRouter(commentRouteGroup, commentHandler)
+	commentRouter := router.NewCommentRouter(commentRouteGroup, commentHandler, auth)
 	commentRouter.Mount()
 
 	socialMediaRouteGroup := g.Group("/v1/socialmedias")
 	socialMediaRepo := repository.NewSocialMediaRepository(gorm)
 	socialMediaService := service.NewSocialMediaService(socialMediaRepo)
 	socialMediaHandler := handler.NewSocialMediaHandler(socialMediaService)
-	socialMediaRouter := router.NewSocialMediaRouter(socialMediaRouteGroup, socialMediaHandler)
+	socialMediaRouter := router.NewSocialMediaRouter(socialMediaRouteGroup, socialMediaHandler, auth)
 	socialMediaRouter.Mount()
 
 	g.GET("/ping", func(ctx *gin.Context) {
