@@ -8,6 +8,7 @@ import (
 	"github.com/go-playground/validator"
 	"github.com/zikri124/mygram-api/internal/model"
 	"github.com/zikri124/mygram-api/internal/service"
+	"github.com/zikri124/mygram-api/pkg/helper"
 	"github.com/zikri124/mygram-api/pkg/response"
 )
 
@@ -155,6 +156,17 @@ func (u *userHandlerImpl) UserEdit(ctx *gin.Context) {
 	userId, err := strconv.Atoi(ctx.Param("id"))
 	if userId == 0 || err != nil {
 		ctx.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	userIdFromToken, err := helper.GetUserIdFromGinCtx(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	if uint32(userId) != userIdFromToken {
+		ctx.JSON(http.StatusUnauthorized, response.ErrorResponse{Message: "does not have access to edit other user's data"})
 		return
 	}
 
