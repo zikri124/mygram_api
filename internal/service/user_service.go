@@ -14,6 +14,7 @@ import (
 type UserService interface {
 	GetUserById(ctx context.Context, userId uint32) (*model.UserView, error)
 	UserRegister(ctx context.Context, userRegData model.UserSignUp) (*model.UserView, error)
+	CheckIsAValidAge(dobStr string) (bool, error)
 	UserLogin(ctx context.Context, userData model.UserSignIn) (*model.User, error)
 	GenerateAccessToken(ctx context.Context, user model.User) (token string, err error)
 	EditUser(ctx context.Context, userData model.User) (*model.UserView, error)
@@ -45,22 +46,17 @@ func (u *userServiceImpl) UserRegister(ctx context.Context, userRegData model.Us
 	user := model.User{}
 	user.Username = userRegData.Username
 	user.Email = userRegData.Email
-	dobTime, err := time.Parse("2006-01-02", userRegData.DOB)
+	dobTime, err := helper.ParseStrToTime(userRegData.DOB)
 	if err != nil {
 		return nil, err
 	}
-	user.DOB = dobTime
+	user.DOB = *dobTime
 
 	hashedPass, err := helper.GenerateHash(userRegData.Password)
 	if err != nil {
 		return nil, err
 	}
 	user.Password = hashedPass
-
-	userAge := helper.CountAge(user.DOB)
-	if userAge <= 8 {
-		return nil, errors.New("user age must above 8")
-	}
 
 	err = u.repo.CreateUser(ctx, &user)
 	if err != nil {
@@ -71,9 +67,22 @@ func (u *userServiceImpl) UserRegister(ctx context.Context, userRegData model.Us
 	userView.ID = user.ID
 	userView.Email = user.Email
 	userView.Username = user.Username
-	userView.Age = userAge
+	userView.Age = helper.CountAge(*dobTime)
 
 	return &userView, nil
+}
+
+func (u *userServiceImpl) CheckIsAValidAge(dobStr string) (bool, error) {
+	dob, err := helper.ParseStrToTime(dobStr)
+	if err != nil {
+		return false, err
+	}
+
+	userAge := helper.CountAge(*dob)
+	if userAge <= 8 {
+		return false, nil
+	}
+	return true, nil
 }
 
 func (u *userServiceImpl) UserLogin(ctx context.Context, userData model.UserSignIn) (*model.User, error) {

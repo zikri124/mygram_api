@@ -82,6 +82,17 @@ func (u *userHandlerImpl) UserRegister(ctx *gin.Context) {
 		return
 	}
 
+	isValidAge, err := u.svc.CheckIsAValidAge(userRegData.DOB)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	if !isValidAge {
+		ctx.JSON(http.StatusBadRequest, response.ErrorResponse{Message: "user age must above 8"})
+		return
+	}
+
 	validate := validator.New()
 	err = validate.Struct(userRegData)
 	if err != nil {
