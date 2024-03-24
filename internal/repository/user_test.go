@@ -40,7 +40,7 @@ func TestGetUser(t *testing.T) {
 		postgresMock.On("GetConnection").Return(db)
 
 		mock.ExpectQuery(regexp.QuoteMeta(`
-			SELECT * FROM "users" WHERE id=1 AND deleted_at IS NULL
+			SELECT * FROM "users" WHERE id = $1 AND "users"."deleted_at" IS NULL
 		`)).WillReturnError(errors.New("some error"))
 
 		userRepo := userRepositoryImpl{db: postgresMock}
