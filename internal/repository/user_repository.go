@@ -32,7 +32,6 @@ func (u *userRepositoryImpl) GetUserById(ctx context.Context, userId uint32) (mo
 		WithContext(ctx).
 		Model(&user).
 		Where("id = ?", userId).
-		Where("deleted_at IS NULL").
 		Find(&user).
 		Error
 
@@ -48,7 +47,6 @@ func (u *userRepositoryImpl) GetUserByEmail(ctx context.Context, email string) (
 		WithContext(ctx).
 		Model(&user).
 		Where("email = ?", email).
-		Where("deleted_at IS NULL").
 		Find(&user).
 		Error
 
