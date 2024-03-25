@@ -59,7 +59,7 @@ func (s *socialMediaHandlerImpl) PostSocialMedia(ctx *gin.Context) {
 }
 
 func (s *socialMediaHandlerImpl) GetAllSocialMediasByUserId(ctx *gin.Context) {
-	userIdStr := ctx.Request.URL.Query().Get("userId")
+	userIdStr := ctx.Request.URL.Query().Get("user_id")
 	if userIdStr == "" {
 		ctx.JSON(http.StatusBadRequest, response.ErrorResponse{Message: "Missing User id in query"})
 		return

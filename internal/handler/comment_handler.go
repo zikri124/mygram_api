@@ -71,7 +71,7 @@ func (c *commentHandlerImpl) PostComment(ctx *gin.Context) {
 }
 
 func (c *commentHandlerImpl) GetAllComments(ctx *gin.Context) {
-	photoIdStr := ctx.Request.URL.Query().Get("photoId")
+	photoIdStr := ctx.Request.URL.Query().Get("photo_id")
 	if photoIdStr == "" {
 		ctx.JSON(http.StatusBadRequest, response.ErrorResponse{Message: "Missing Photo id in query"})
 		return

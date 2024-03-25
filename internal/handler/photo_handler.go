@@ -65,7 +65,7 @@ func (p *photoHandlerImpl) PostPhoto(ctx *gin.Context) {
 }
 
 func (p *photoHandlerImpl) GetAllPhotosByUserId(ctx *gin.Context) {
-	userIdStr := ctx.Request.URL.Query().Get("userId")
+	userIdStr := ctx.Request.URL.Query().Get("user_id")
 	if userIdStr == "" {
 		ctx.JSON(http.StatusBadRequest, response.ErrorResponse{Message: "Missing User id in query"})
 		return
