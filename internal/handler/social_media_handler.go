@@ -28,6 +28,19 @@ func NewSocialMediaHandler(svc service.SocialMediaService) SocialMediaHandler {
 	return &socialMediaHandlerImpl{svc: svc}
 }
 
+// Create Social Media godoc
+//
+// @Summary		Create social_media
+// @Description	Create data to the login user
+// @Tags		social_media
+// @Accept		json
+// @Produce		json
+// @Param		Authorization header 	string	true "Bearer token"
+// @Param		photo	body		model.NewSocialMedia	true	"New Social Media"
+// @Success		200		{object}	model.CreateSocialMediaRes
+// @Failure		400		{object}	response.ErrorResponse
+// @Failure		500		{object}	response.ErrorResponse
+// @Router		/v1/social_medias [post]
 func (s *socialMediaHandlerImpl) PostSocialMedia(ctx *gin.Context) {
 	userId, err := helper.GetUserIdFromGinCtx(ctx)
 	if err != nil {
@@ -58,6 +71,19 @@ func (s *socialMediaHandlerImpl) PostSocialMedia(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, socialMediaRes)
 }
 
+// Get Social Media godoc
+//
+// @Summary		Get all data of a social_media by user id
+// @Description	Return an array of social_media data
+// @Tags		social_media
+// @Accept		json
+// @Produce		json
+// @Param		Authorization header 	string	true "Bearer token"
+// @Param       user_id    query    string  false  "user id of the owner"
+// @Success		200		{object}	[]model.SocialMediaView
+// @Failure		400		{object}	response.ErrorResponse
+// @Failure		500		{object}	response.ErrorResponse
+// @Router		/v1/social_medias [get]
 func (s *socialMediaHandlerImpl) GetAllSocialMediasByUserId(ctx *gin.Context) {
 	userIdStr := ctx.Request.URL.Query().Get("user_id")
 	if userIdStr == "" {
@@ -79,6 +105,19 @@ func (s *socialMediaHandlerImpl) GetAllSocialMediasByUserId(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, socials)
 }
 
+// Get Social Media godoc
+//
+// @Summary		Get data of a social_media by social_media id
+// @Description	Get data by social_media id
+// @Tags		social_media
+// @Accept		json
+// @Produce		json
+// @Param		Authorization header string	true "Bearer token"
+// @Param		id		path		int	true	"Social Media ID"
+// @Success		200		{object}	model.SocialMediaView
+// @Failure		400		{object}	response.ErrorResponse
+// @Failure		500		{object}	response.ErrorResponse
+// @Router		/v1/social_medias/{id} [get]
 func (s *socialMediaHandlerImpl) GetSocialMediaById(ctx *gin.Context) {
 	socialId, err := strconv.Atoi(ctx.Param("id"))
 	if socialId == 0 || err != nil {
@@ -100,6 +139,20 @@ func (s *socialMediaHandlerImpl) GetSocialMediaById(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, social)
 }
 
+// Edit Social Media godoc
+//
+// @Summary		Edit any social_media data by social_media id
+// @Description	Edit any social_media data by social_media id
+// @Tags		social_media
+// @Accept		json
+// @Produce		json
+// @Param		Authorization header string	true "Bearer token"
+// @Param		id		path		int	true	"Photo id"
+// @Param		social_media	body		model.NewSocialMedia	true	"New Social Media Editted"
+// @Success		200		{object}	model.UpdateSocialMediaRes
+// @Failure		400		{object}	response.ErrorResponse
+// @Failure		500		{object}	response.ErrorResponse
+// @Router		/v1/social_medias/{id} [put]
 func (s *socialMediaHandlerImpl) UpdateSocialMedia(ctx *gin.Context) {
 	socialId, err := strconv.Atoi(ctx.Param("id"))
 	if socialId == 0 || err != nil {
@@ -156,6 +209,19 @@ func (s *socialMediaHandlerImpl) UpdateSocialMedia(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, socialMediaRes)
 }
 
+// Delete Social Media godoc
+//
+// @Summary		Delete any social_media
+// @Description	Delete by social_media id
+// @Tags		social_media
+// @Accept		json
+// @Produce		json
+// @Param		Authorization header string	true "Bearer token"
+// @Param		id		path		int	true	"Social Media Id"
+// @Success		200		{object}	response.SuccessResponse
+// @Failure		400		{object}	response.ErrorResponse
+// @Failure		500		{object}	response.ErrorResponse
+// @Router		/v1/social_medias/{id} [delete]
 func (s *socialMediaHandlerImpl) DeleteSocialMedia(ctx *gin.Context) {
 	socialId, err := strconv.Atoi(ctx.Param("id"))
 	if socialId == 0 || err != nil {

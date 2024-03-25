@@ -17,7 +17,7 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-// @title			RETAIL ADMIN API DOCUMENTATION
+// @title			MY GRAM API DOCUMENTATION
 // @version			2.0
 // @description		api doc for golang bootcamp hackativ8 x kominfo
 // @termsOfService	http://swagger.io/terms/

@@ -1,5 +1,70 @@
 basePath: /
 definitions:
+  model.CommentView:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      message:
+        type: string
+      photo:
+        $ref: '#/definitions/model.PhotoItem'
+      photo_id:
+        type: integer
+      updated_at:
+        type: string
+      user:
+        $ref: '#/definitions/model.UserItem'
+      user_id:
+        type: integer
+    type: object
+  model.CreateComment:
+    properties:
+      message:
+        type: string
+      photo_id:
+        type: integer
+    required:
+    - message
+    - photo_id
+    type: object
+  model.CreateCommentRes:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      message:
+        type: string
+      photo_id:
+        type: integer
+      user_id:
+        type: integer
+    type: object
+  model.CreateSocialMediaRes:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      social_media_url:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  model.NewSocialMedia:
+    properties:
+      name:
+        type: string
+      social_media_url:
+        type: string
+    required:
+    - name
+    - social_media_url
+    type: object
   model.PhotoCreate:
     properties:
       caption:
@@ -11,6 +76,19 @@ definitions:
     required:
     - photo_url
     - title
+    type: object
+  model.PhotoItem:
+    properties:
+      caption:
+        type: string
+      id:
+        type: integer
+      photo_url:
+        type: string
+      title:
+        type: string
+      user_id:
+        type: integer
     type: object
   model.PhotoResCreate:
     properties:
@@ -59,6 +137,43 @@ definitions:
       user_id:
         type: integer
     type: object
+  model.SocialMediaView:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      social_media_url:
+        type: string
+      updated_at:
+        type: string
+      user:
+        $ref: '#/definitions/model.UserItem'
+      user_id:
+        type: integer
+    type: object
+  model.UpdateComment:
+    properties:
+      message:
+        type: string
+    required:
+    - message
+    type: object
+  model.UpdateCommentRes:
+    properties:
+      id:
+        type: integer
+      message:
+        type: string
+      photo_id:
+        type: integer
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+    type: object
   model.UpdatePhoto:
     properties:
       caption:
@@ -70,6 +185,19 @@ definitions:
     required:
     - photo_url
     - title
+    type: object
+  model.UpdateSocialMediaRes:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      social_media_url:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: integer
     type: object
   model.UserEdit:
     properties:
@@ -157,9 +285,184 @@ info:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   termsOfService: http://swagger.io/terms/
-  title: RETAIL ADMIN API DOCUMENTATION
+  title: MY GRAM API DOCUMENTATION
   version: "2.0"
 paths:
+  /v1/comments:
+    get:
+      consumes:
+      - application/json
+      description: Return an array of comments data
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: photo id of the comments owner
+        in: query
+        name: photo_id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.CommentView'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get all data of a photo by user id
+      tags:
+      - comment
+    post:
+      consumes:
+      - application/json
+      description: Create data to the login user
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: New Comment
+        in: body
+        name: comment
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateComment'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.CreateCommentRes'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Create Comment
+      tags:
+      - comment
+  /v1/comments/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete by id
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Comment Id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Delete any comment
+      tags:
+      - comment
+    get:
+      consumes:
+      - application/json
+      description: Get data by comment id
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Comment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.CommentView'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get data of a comment by photo id
+      tags:
+      - comment
+    put:
+      consumes:
+      - application/json
+      description: Edit any comment data by photo id
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Comment id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: New Comment Editted
+        in: body
+        name: comment
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateComment'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.UpdateCommentRes'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Edit any comment data by photo id
+      tags:
+      - comment
   /v1/photos:
     get:
       consumes:
@@ -335,6 +638,181 @@ paths:
       summary: Edit any photo data by photo id
       tags:
       - photo
+  /v1/social_medias:
+    get:
+      consumes:
+      - application/json
+      description: Return an array of social_media data
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: user id of the owner
+        in: query
+        name: user_id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.SocialMediaView'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get all data of a social_media by user id
+      tags:
+      - social_media
+    post:
+      consumes:
+      - application/json
+      description: Create data to the login user
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: New Social Media
+        in: body
+        name: photo
+        required: true
+        schema:
+          $ref: '#/definitions/model.NewSocialMedia'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.CreateSocialMediaRes'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Create social_media
+      tags:
+      - social_media
+  /v1/social_medias/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete by social_media id
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Social Media Id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Delete any social_media
+      tags:
+      - social_media
+    get:
+      consumes:
+      - application/json
+      description: Get data by social_media id
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Social Media ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.SocialMediaView'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get data of a social_media by social_media id
+      tags:
+      - social_media
+    put:
+      consumes:
+      - application/json
+      description: Edit any social_media data by social_media id
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Photo id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: New Social Media Editted
+        in: body
+        name: social_media
+        required: true
+        schema:
+          $ref: '#/definitions/model.NewSocialMedia'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.UpdateSocialMediaRes'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Edit any social_media data by social_media id
+      tags:
+      - social_media
   /v1/users:
     delete:
       consumes:
