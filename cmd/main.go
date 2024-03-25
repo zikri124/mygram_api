@@ -39,6 +39,8 @@ func main() {
 
 	gorm := infrastructure.NewGormPostgres()
 
+	g.Use(middleware.CorsMiddleware())
+
 	userRouteGroup := g.Group("/v1/users")
 	userRepo := repository.NewUserRepository(gorm)
 	userService := service.NewUserService(userRepo)
