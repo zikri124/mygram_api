@@ -24,6 +24,7 @@ func (s *socialMediaRouterImpl) Mount() {
 	s.v.Use(s.auth.CheckAuth)
 	s.v.POST("", s.handler.PostSocialMedia)
 	s.v.GET("", s.handler.GetAllSocialMediasByUserId)
+	s.v.GET("/:id", s.handler.GetSocialMediaById)
 	s.v.PUT("/:id", s.handler.UpdateSocialMedia)
 	s.v.DELETE("/:id", s.handler.DeleteSocialMedia)
 }

@@ -10,7 +10,7 @@ import (
 type SocialMediaService interface {
 	PostSocial(ctx context.Context, userId uint32, social model.NewSocialMedia) (*model.CreateSocialMediaRes, error)
 	GetAllSocialMediasByUserId(ctx context.Context, userId uint32) ([]model.SocialMediaView, error)
-	GetSocialById(ctx context.Context, socialId uint32) (*model.SocialMedia, error)
+	GetSocialById(ctx context.Context, socialId uint32) (*model.SocialMediaView, error)
 	UpdateSocial(ctx context.Context, social model.SocialMedia) (*model.UpdateSocialMediaRes, error)
 	DeleteSocial(ctx context.Context, socialId uint32) error
 }
@@ -53,7 +53,7 @@ func (s *socialMediaServiceImpl) GetAllSocialMediasByUserId(ctx context.Context,
 	return socials, nil
 }
 
-func (s *socialMediaServiceImpl) GetSocialById(ctx context.Context, socialId uint32) (*model.SocialMedia, error) {
+func (s *socialMediaServiceImpl) GetSocialById(ctx context.Context, socialId uint32) (*model.SocialMediaView, error) {
 	social, err := s.repo.GetSocialById(ctx, socialId)
 	if err != nil {
 		return nil, err

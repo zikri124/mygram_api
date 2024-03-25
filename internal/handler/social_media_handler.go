@@ -15,6 +15,7 @@ import (
 type SocialMediaHandler interface {
 	PostSocialMedia(ctx *gin.Context)
 	GetAllSocialMediasByUserId(ctx *gin.Context)
+	GetSocialMediaById(ctx *gin.Context)
 	UpdateSocialMedia(ctx *gin.Context)
 	DeleteSocialMedia(ctx *gin.Context)
 }
@@ -78,7 +79,7 @@ func (s *socialMediaHandlerImpl) GetAllSocialMediasByUserId(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, socials)
 }
 
-func (s *socialMediaHandlerImpl) UpdateSocialMedia(ctx *gin.Context) {
+func (s *socialMediaHandlerImpl) GetSocialMediaById(ctx *gin.Context) {
 	socialId, err := strconv.Atoi(ctx.Param("id"))
 	if socialId == 0 || err != nil {
 		ctx.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
@@ -96,13 +97,34 @@ func (s *socialMediaHandlerImpl) UpdateSocialMedia(ctx *gin.Context) {
 		return
 	}
 
+	ctx.JSON(http.StatusOK, social)
+}
+
+func (s *socialMediaHandlerImpl) UpdateSocialMedia(ctx *gin.Context) {
+	socialId, err := strconv.Atoi(ctx.Param("id"))
+	if socialId == 0 || err != nil {
+		ctx.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	socialData, err := s.svc.GetSocialById(ctx, uint32(socialId))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	if socialData.ID == 0 {
+		ctx.JSON(http.StatusNotFound, response.ErrorResponse{Message: "User Social Media data did not exist"})
+		return
+	}
+
 	userId, err := helper.GetUserIdFromGinCtx(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
 		return
 	}
 
-	if userId != uint32(social.UserId) {
+	if userId != uint32(socialData.UserId) {
 		ctx.JSON(http.StatusUnauthorized, response.ErrorResponse{Message: "unauthorized to do this request"})
 		return
 	}
@@ -121,10 +143,11 @@ func (s *socialMediaHandlerImpl) UpdateSocialMedia(ctx *gin.Context) {
 		return
 	}
 
+	social := model.SocialMedia{ID: socialData.ID, UserId: socialData.UserId}
 	social.Name = socialUpdateData.Name
 	social.SocialMediaUrl = socialUpdateData.SocialMediaUrl
 
-	socialMediaRes, err := s.svc.UpdateSocial(ctx, *social)
+	socialMediaRes, err := s.svc.UpdateSocial(ctx, social)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
 		return
