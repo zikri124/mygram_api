@@ -1,5 +1,76 @@
 basePath: /
 definitions:
+  model.PhotoCreate:
+    properties:
+      caption:
+        type: string
+      photo_url:
+        type: string
+      title:
+        type: string
+    required:
+    - photo_url
+    - title
+    type: object
+  model.PhotoResCreate:
+    properties:
+      caption:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      photo_url:
+        type: string
+      title:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  model.PhotoResUpdate:
+    properties:
+      caption:
+        type: string
+      id:
+        type: integer
+      photo_url:
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  model.PhotoView:
+    properties:
+      caption:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      photo_url:
+        type: string
+      title:
+        type: string
+      user:
+        $ref: '#/definitions/model.UserItem'
+      user_id:
+        type: integer
+    type: object
+  model.UpdatePhoto:
+    properties:
+      caption:
+        type: string
+      photo_url:
+        type: string
+      title:
+        type: string
+    required:
+    - photo_url
+    - title
+    type: object
   model.UserEdit:
     properties:
       email:
@@ -9,6 +80,15 @@ definitions:
     required:
     - email
     - username
+    type: object
+  model.UserItem:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+      username:
+        type: string
     type: object
   model.UserSignIn:
     properties:
@@ -56,6 +136,11 @@ definitions:
       message:
         type: string
     type: object
+  response.SuccessResponse:
+    properties:
+      message:
+        type: string
+    type: object
   response.TokenResponse:
     properties:
       token:
@@ -75,6 +160,181 @@ info:
   title: RETAIL ADMIN API DOCUMENTATION
   version: "2.0"
 paths:
+  /v1/photos:
+    get:
+      consumes:
+      - application/json
+      description: Return an array of photo data
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: user id of the owner
+        in: query
+        name: user_id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.PhotoView'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get all data of a photo by user id
+      tags:
+      - photo
+    post:
+      consumes:
+      - application/json
+      description: Create data to the login user
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: New Photo
+        in: body
+        name: photo
+        required: true
+        schema:
+          $ref: '#/definitions/model.PhotoCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.PhotoResCreate'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Create photo
+      tags:
+      - photo
+  /v1/photos/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete by id
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Photo Id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Delete any photo
+      tags:
+      - photo
+    get:
+      consumes:
+      - application/json
+      description: Get data by photo id
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: photo ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.PhotoView'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get data of a photo by photo id
+      tags:
+      - photo
+    put:
+      consumes:
+      - application/json
+      description: Edit any photo data by photo id
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Photo id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: New Photo Editted
+        in: body
+        name: photo
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdatePhoto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.PhotoResUpdate'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Edit any photo data by photo id
+      tags:
+      - photo
   /v1/users:
     delete:
       consumes:

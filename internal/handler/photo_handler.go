@@ -28,6 +28,19 @@ func NewPhotoHandler(svc service.PhotoService) PhotoHandler {
 	return &photoHandlerImpl{svc: svc}
 }
 
+// Create Photo godoc
+//
+// @Summary		Create photo
+// @Description	Create data to the login user
+// @Tags		photo
+// @Accept		json
+// @Produce		json
+// @Param		Authorization header 	string	true "Bearer token"
+// @Param		photo	body		model.PhotoCreate	true	"New Photo"
+// @Success		200		{object}	model.PhotoResCreate
+// @Failure		400		{object}	response.ErrorResponse
+// @Failure		500		{object}	response.ErrorResponse
+// @Router		/v1/photos [post]
 func (p *photoHandlerImpl) PostPhoto(ctx *gin.Context) {
 	userId, err := helper.GetUserIdFromGinCtx(ctx)
 	if err != nil {
@@ -64,6 +77,19 @@ func (p *photoHandlerImpl) PostPhoto(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, photoRes)
 }
 
+// Get Photo godoc
+//
+// @Summary		Get all data of a photo by user id
+// @Description	Return an array of photo data
+// @Tags		photo
+// @Accept		json
+// @Produce		json
+// @Param		Authorization header 	string	true "Bearer token"
+// @Param       user_id    query    string  false  "user id of the owner"
+// @Success		200		{object}	[]model.PhotoView
+// @Failure		400		{object}	response.ErrorResponse
+// @Failure		500		{object}	response.ErrorResponse
+// @Router		/v1/photos [get]
 func (p *photoHandlerImpl) GetAllPhotosByUserId(ctx *gin.Context) {
 	userIdStr := ctx.Request.URL.Query().Get("user_id")
 	if userIdStr == "" {
@@ -85,6 +111,19 @@ func (p *photoHandlerImpl) GetAllPhotosByUserId(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, photos)
 }
 
+// Get Photo godoc
+//
+// @Summary		Get data of a photo by photo id
+// @Description	Get data by photo id
+// @Tags		photo
+// @Accept		json
+// @Produce		json
+// @Param		Authorization header string	true "Bearer token"
+// @Param		id		path		int	true	"photo ID"
+// @Success		200		{object}	model.PhotoView
+// @Failure		400		{object}	response.ErrorResponse
+// @Failure		500		{object}	response.ErrorResponse
+// @Router		/v1/photos/{id} [get]
 func (p *photoHandlerImpl) GetPhotoById(ctx *gin.Context) {
 	photoId, err := strconv.Atoi(ctx.Param("id"))
 	if photoId == 0 || err != nil {
@@ -101,6 +140,20 @@ func (p *photoHandlerImpl) GetPhotoById(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, photo)
 }
 
+// Edit Photo godoc
+//
+// @Summary		Edit any photo data by photo id
+// @Description	Edit any photo data by photo id
+// @Tags		photo
+// @Accept		json
+// @Produce		json
+// @Param		Authorization header string	true "Bearer token"
+// @Param		id		path		int	true	"Photo id"
+// @Param		photo	body		model.UpdatePhoto	true	"New Photo Editted"
+// @Success		200		{object}	model.PhotoResUpdate
+// @Failure		400		{object}	response.ErrorResponse
+// @Failure		500		{object}	response.ErrorResponse
+// @Router		/v1/photos/{id} [put]
 func (p *photoHandlerImpl) UpdatePhoto(ctx *gin.Context) {
 	photoId, err := strconv.Atoi(ctx.Param("id"))
 	if photoId == 0 || err != nil {
@@ -159,6 +212,19 @@ func (p *photoHandlerImpl) UpdatePhoto(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, photoRes)
 }
 
+// Delete Photo godoc
+//
+// @Summary		Delete any photo
+// @Description	Delete by id
+// @Tags		photo
+// @Accept		json
+// @Produce		json
+// @Param		Authorization header string	true "Bearer token"
+// @Param		id		path		int	true	"Photo Id"
+// @Success		200		{object}	response.SuccessResponse
+// @Failure		400		{object}	response.ErrorResponse
+// @Failure		500		{object}	response.ErrorResponse
+// @Router		/v1/photos/{id} [delete]
 func (p *photoHandlerImpl) DeletePhoto(ctx *gin.Context) {
 	photoId, err := strconv.Atoi(ctx.Param("id"))
 	if photoId == 0 || err != nil {
