@@ -11,7 +11,7 @@ import (
 type PhotoRepository interface {
 	CreatePhoto(ctx context.Context, photo *model.Photo) error
 	GetAllPhotosByUserId(ctx context.Context, userId uint32) ([]model.PhotoView, error)
-	GetPhotoById(ctx context.Context, photoId uint32) (*model.Photo, error)
+	GetPhotoById(ctx context.Context, photoId uint32) (*model.PhotoView, error)
 	UpdatePhoto(ctx context.Context, photo *model.Photo) error
 	DeletePhoto(ctx context.Context, photoId uint32) error
 }
@@ -58,15 +58,19 @@ func (p *photoRepositoryImpl) GetAllPhotosByUserId(ctx context.Context, userId u
 	return photos, nil
 }
 
-func (p *photoRepositoryImpl) GetPhotoById(ctx context.Context, photoId uint32) (*model.Photo, error) {
+func (p *photoRepositoryImpl) GetPhotoById(ctx context.Context, photoId uint32) (*model.PhotoView, error) {
 	db := p.db.GetConnection()
-	photo := model.Photo{}
+	photoModel := model.Photo{}
+	photo := model.PhotoView{}
 
 	err := db.
 		WithContext(ctx).
-		Table("photos").
+		Model(&photoModel).
 		Where("id = ?", photoId).
 		Where("deleted_at IS NULL").
+		Preload("User", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id, email, username").Table("users").Where("deleted_at is null")
+		}).
 		Find(&photo).
 		Error
 

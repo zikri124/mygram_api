@@ -15,6 +15,7 @@ import (
 type PhotoHandler interface {
 	PostPhoto(ctx *gin.Context)
 	GetAllPhotosByUserId(ctx *gin.Context)
+	GetPhotoById(ctx *gin.Context)
 	UpdatePhoto(ctx *gin.Context)
 	DeletePhoto(ctx *gin.Context)
 }
@@ -82,6 +83,22 @@ func (p *photoHandlerImpl) GetAllPhotosByUserId(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, photos)
+}
+
+func (p *photoHandlerImpl) GetPhotoById(ctx *gin.Context) {
+	photoId, err := strconv.Atoi(ctx.Param("id"))
+	if photoId == 0 || err != nil {
+		ctx.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	photo, err := p.svc.GetPhotoById(ctx, uint32(photoId))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, photo)
 }
 
 func (p *photoHandlerImpl) UpdatePhoto(ctx *gin.Context) {

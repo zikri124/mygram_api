@@ -11,7 +11,7 @@ import (
 type PhotoService interface {
 	PostPhoto(ctx context.Context, photo model.Photo) (*model.PhotoResCreate, error)
 	GetAllPhotosByUserId(ctx context.Context, userId uint32) ([]model.PhotoView, error)
-	GetPhotoById(ctx context.Context, photoId uint32) (*model.Photo, error)
+	GetPhotoById(ctx context.Context, photoId uint32) (*model.PhotoView, error)
 	UpdatePhoto(ctx context.Context, photo model.Photo) (*model.PhotoResUpdate, error)
 	DeletePhoto(ctx context.Context, photoId uint32) error
 }
@@ -50,7 +50,7 @@ func (p *photoServiceImpl) GetAllPhotosByUserId(ctx context.Context, userId uint
 	return photos, nil
 }
 
-func (p *photoServiceImpl) GetPhotoById(ctx context.Context, photoId uint32) (*model.Photo, error) {
+func (p *photoServiceImpl) GetPhotoById(ctx context.Context, photoId uint32) (*model.PhotoView, error) {
 	photo, err := p.repo.GetPhotoById(ctx, photoId)
 	if err != nil {
 		return nil, err
