@@ -152,6 +152,20 @@ func (u *userHandlerImpl) UserLogin(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response.TokenResponse{Token: token})
 }
 
+// Edit User godoc
+//
+// @Summary		Edit data of an user
+// @Description	User only can edit their own user data
+// @Tags		users
+// @Accept		json
+// @Produce		json
+// @Param		Authorization header 	string	true "bearer token"
+// @Param		id		path		int	true	"Edit User"
+// @Param		user	body		model.UserEdit	true	"New User"
+// @Success		200		{object}	model.UserView
+// @Failure		400		{object}	response.ErrorResponse
+// @Failure		500		{object}	response.ErrorResponse
+// @Router		/v1/users/{id} [put]
 func (u *userHandlerImpl) UserEdit(ctx *gin.Context) {
 	userId, err := strconv.Atoi(ctx.Param("id"))
 	if userId == 0 || err != nil {
@@ -195,15 +209,24 @@ func (u *userHandlerImpl) UserEdit(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, userRes)
 }
 
+// Delete User godoc
+//
+// @Summary		Delete an user by user id
+// @Description	User only can delete their own account
+// @Tags		users
+// @Accept		json
+// @Produce		json
+// @Param		Authorization header string	true "bearer token"
+// @Success		200		{object}	model.UserView
+// @Failure		400		{object}	response.ErrorResponse
+// @Failure		500		{object}	response.ErrorResponse
+// @Router		/v1/users [delete]
 func (u *userHandlerImpl) UserDelete(ctx *gin.Context) {
-	userIdRaw, isExist := ctx.Get("UserId")
-	if !isExist {
-		ctx.JSON(http.StatusUnauthorized, response.ErrorResponse{Message: "payload not provided in access token"})
+	userId, err := helper.GetUserIdFromGinCtx(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
 		return
 	}
-
-	userIdFloat := userIdRaw.(float64)
-	userId := int(userIdFloat)
 
 	user, err := u.svc.GetUserById(ctx, uint32(userId))
 	if err != nil {

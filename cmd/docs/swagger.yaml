@@ -1,5 +1,15 @@
 basePath: /
 definitions:
+  model.UserEdit:
+    properties:
+      email:
+        type: string
+      username:
+        type: string
+    required:
+    - email
+    - username
+    type: object
   model.UserSignIn:
     properties:
       email:
@@ -65,6 +75,35 @@ info:
   title: RETAIL ADMIN API DOCUMENTATION
   version: "2.0"
 paths:
+  /v1/users:
+    delete:
+      consumes:
+      - application/json
+      description: User only can delete their own account
+      parameters:
+      - description: bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.UserView'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Delete an user by user id
+      tags:
+      - users
   /v1/users/{id}:
     get:
       consumes:
@@ -96,6 +135,45 @@ paths:
           schema:
             $ref: '#/definitions/response.ErrorResponse'
       summary: Show user data by user id
+      tags:
+      - users
+    put:
+      consumes:
+      - application/json
+      description: User only can edit their own user data
+      parameters:
+      - description: bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Edit User
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: New User
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/model.UserEdit'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.UserView'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Edit data of an user
       tags:
       - users
   /v1/users/login:
