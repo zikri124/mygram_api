@@ -97,5 +97,18 @@ func (p *photoRepositoryImpl) DeletePhoto(ctx context.Context, photoId uint32) e
 		Delete(&photo).
 		Error
 
+	if err != nil {
+		return err
+	}
+
+	comment := model.Comment{}
+
+	err = db.
+		WithContext(ctx).
+		Table("comments").
+		Where("photo_id=?", photoId).
+		Delete(&comment).
+		Error
+
 	return err
 }
