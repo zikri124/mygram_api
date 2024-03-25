@@ -11,7 +11,7 @@ import (
 type CommentRepository interface {
 	CreateComment(ctx context.Context, comment *model.Comment) error
 	GetAllCommentsByPhotoId(ctx context.Context, photoId uint32) ([]model.CommentView, error)
-	GetCommentById(ctx context.Context, commentId uint32) (*model.Comment, error)
+	GetCommentById(ctx context.Context, commentId uint32) (*model.CommentView, error)
 	UpdateComment(ctx context.Context, comment *model.Comment) error
 	DeleteComment(ctx context.Context, commentId uint32) error
 }
@@ -61,15 +61,22 @@ func (c *commentRepositoryImpl) GetAllCommentsByPhotoId(ctx context.Context, pho
 	return comments, nil
 }
 
-func (c *commentRepositoryImpl) GetCommentById(ctx context.Context, commentId uint32) (*model.Comment, error) {
+func (c *commentRepositoryImpl) GetCommentById(ctx context.Context, commentId uint32) (*model.CommentView, error) {
 	db := c.db.GetConnection()
-	comment := model.Comment{}
+	comment := model.CommentView{}
+	commentModel := model.Comment{}
 
 	err := db.
 		WithContext(ctx).
-		Table("comments").
+		Model(&commentModel).
 		Where("id = ?", commentId).
 		Where("deleted_at IS NULL").
+		Preload("User", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id, email, username").Table("users").Where("deleted_at is null")
+		}).
+		Preload("Photo", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id, title, caption, photo_url, user_id").Table("photos").Where("deleted_at is null")
+		}).
 		Find(&comment).
 		Error
 

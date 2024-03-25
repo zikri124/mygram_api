@@ -10,7 +10,7 @@ import (
 type CommentService interface {
 	PostComment(ctx context.Context, userId uint32, newComment model.CreateComment) (*model.CreateCommentRes, error)
 	GetAllCommentsByPhotoId(ctx context.Context, photoId uint32) ([]model.CommentView, error)
-	GetCommentById(ctx context.Context, commentId uint32) (*model.Comment, error)
+	GetCommentById(ctx context.Context, commentId uint32) (*model.CommentView, error)
 	UpdateComment(ctx context.Context, comment model.Comment) (*model.UpdateCommentRes, error)
 	DeleteComment(ctx context.Context, commentId uint32) error
 }
@@ -53,7 +53,7 @@ func (c *commentServiceImpl) GetAllCommentsByPhotoId(ctx context.Context, photoI
 	return comments, nil
 }
 
-func (c *commentServiceImpl) GetCommentById(ctx context.Context, commentId uint32) (*model.Comment, error) {
+func (c *commentServiceImpl) GetCommentById(ctx context.Context, commentId uint32) (*model.CommentView, error) {
 	comment, err := c.repo.GetCommentById(ctx, commentId)
 	if err != nil {
 		return nil, err

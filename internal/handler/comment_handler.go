@@ -15,6 +15,7 @@ import (
 type CommentHandler interface {
 	PostComment(ctx *gin.Context)
 	GetAllComments(ctx *gin.Context)
+	GetCommentById(ctx *gin.Context)
 	UpdateComment(ctx *gin.Context)
 	DeleteComment(ctx *gin.Context)
 }
@@ -90,7 +91,7 @@ func (c *commentHandlerImpl) GetAllComments(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, comments)
 }
 
-func (c *commentHandlerImpl) UpdateComment(ctx *gin.Context) {
+func (c *commentHandlerImpl) GetCommentById(ctx *gin.Context) {
 	commentId, err := strconv.Atoi(ctx.Param("id"))
 	if commentId == 0 || err != nil {
 		ctx.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
@@ -108,13 +109,34 @@ func (c *commentHandlerImpl) UpdateComment(ctx *gin.Context) {
 		return
 	}
 
+	ctx.JSON(http.StatusOK, comment)
+}
+
+func (c *commentHandlerImpl) UpdateComment(ctx *gin.Context) {
+	commentId, err := strconv.Atoi(ctx.Param("id"))
+	if commentId == 0 || err != nil {
+		ctx.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	commentData, err := c.svc.GetCommentById(ctx, uint32(commentId))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	if commentData.ID == 0 {
+		ctx.JSON(http.StatusNotFound, response.ErrorResponse{Message: "Comment did not exist"})
+		return
+	}
+
 	userId, err := helper.GetUserIdFromGinCtx(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
 		return
 	}
 
-	if userId != uint32(comment.UserId) {
+	if userId != uint32(commentData.UserId) {
 		ctx.JSON(http.StatusUnauthorized, response.ErrorResponse{Message: "unauthorized to do this request"})
 		return
 	}
@@ -133,9 +155,10 @@ func (c *commentHandlerImpl) UpdateComment(ctx *gin.Context) {
 		return
 	}
 
+	comment := model.Comment{ID: commentData.ID, UserId: commentData.UserId, PhotoId: commentData.PhotoId}
 	comment.Message = commentEditData.Message
 
-	commentRes, err := c.svc.UpdateComment(ctx, *comment)
+	commentRes, err := c.svc.UpdateComment(ctx, comment)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
 		return
